@@ -22,10 +22,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws java.io.IOException, jakarta.servlet.ServletException {
         String authHeader = req.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.isBlank() || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(req, res);
             return;
         }
+
         String token = authHeader.substring(7);
         try {
             String email = jwtUtil.extractUsername(token);
@@ -38,7 +39,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+            // Invalid/expired JWT -> do NOT authenticate, let Spring return 401/403 for protected endpoints
+            SecurityContextHolder.clearContext();
+            // Do not swallow response details here; just continue the filter chain.
+        } catch (Exception ignored) {
+            SecurityContextHolder.clearContext();
+        }
+
         chain.doFilter(req, res);
     }
 }

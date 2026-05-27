@@ -2,14 +2,25 @@ import axios from 'axios'
 import { useAuthStore } from '../store'
 
 const api = axios.create({
-  baseURL: 'http://localhost:9090/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   headers: { 'Content-Type': 'application/json' },
 })
 
 // Attach JWT token to every request
 api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token
-  if (token) config.headers.Authorization = `Bearer ${token}`
+  try {
+    console.log('[api] request:', {
+      baseURL: config.baseURL,
+      url: config.url,
+      fullUrl: `${config.baseURL || ''}${config.url || ''}`,
+      method: config.method,
+    })
+
+    const token = useAuthStore.getState().token
+    if (token) config.headers.Authorization = `Bearer ${token}`
+  } catch (e) {
+    console.warn('[api] request interceptor error (non-fatal):', e)
+  }
   return config
 })
 
@@ -17,13 +28,18 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   res => res,
   err => {
-    if (err.response?.status === 401) {
-      useAuthStore.getState().logout()
-      window.location.href = '/login'
+    try {
+      if (err.response?.status === 401) {
+        useAuthStore.getState().logout()
+        window.location.href = '/login'
+      }
+    } catch (e) {
+      console.warn('[api] response interceptor error (non-fatal):', e)
     }
     return Promise.reject(err)
   }
 )
+
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 export const authAPI = {

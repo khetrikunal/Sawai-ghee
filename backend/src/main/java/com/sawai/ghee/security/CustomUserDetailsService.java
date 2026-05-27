@@ -19,7 +19,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
                 .password(user.getPassword())
-                .roles(user.getRole().name())
+                // Spring Security hasRole("ADMIN") expects an authority like "ROLE_ADMIN"
+                .authorities("ROLE_" + user.getRole().name())
                 .build();
+
     }
 }

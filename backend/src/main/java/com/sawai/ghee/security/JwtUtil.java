@@ -21,9 +21,11 @@ public class JwtUtil {
     private long expiration;
 
     private Key getKey() {
-        byte[] bytes = Decoders.BASE64.decode(Base64.getEncoder().encodeToString(secret.getBytes()));
-        return Keys.hmacShaKeyFor(bytes);
+        // Use the JWT secret as a stable HMAC key (do NOT double Base64 transform it)
+        byte[] keyBytes = secret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
+
 
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()

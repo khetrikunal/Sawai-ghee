@@ -36,19 +36,28 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
+    console.log('[LoginPage] submit clicked');
     e.preventDefault()
     setLoading(true)
+
+    const payload = { ...form }
+    console.log('[LoginPage] login payload:', payload)
+
     try {
-      const { data } = await authAPI.login(form)
+      console.log('[LoginPage] calling authAPI.login...')
+      const { data } = await authAPI.login(payload)
+      console.log('[LoginPage] authAPI.login response:', data)
       setAuth(data.data.user, data.data.token)
       toast.success(`Welcome back, ${data.data.user.name}!`)
       navigate(data.data.user.role === 'ADMIN' ? '/admin' : '/')
     } catch (err) {
+      console.error('[LoginPage] authAPI.login error:', err)
       toast.error(err.response?.data?.message || 'Login failed. Please try again.')
     } finally {
       setLoading(false)
     }
   }
+
 
   return (
     <AuthLayout title="Welcome Back" subtitle="Sign in to your Sawai account">
@@ -59,7 +68,15 @@ export function LoginPage() {
         ].map(f => (
           <div key={f.k} style={{ marginBottom: '1.1rem' }}>
             <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 6 }}>{f.l}</label>
-            <input type={f.t} placeholder={f.p} value={form[f.k]} onChange={e => setForm({ ...form, [f.k]: e.target.value })} required style={inputStyle} />
+            <input
+              type={f.t}
+              placeholder={f.p}
+              value={form[f.k]}
+              onChange={e => setForm({ ...form, [f.k]: e.target.value })}
+              required
+              autoComplete={f.k === 'email' ? 'username' : f.k === 'password' ? 'current-password' : undefined}
+              style={inputStyle}
+            />
           </div>
         ))}
         <button type="submit" disabled={loading} style={{ width: '100%', background: loading ? '#7a6040' : '#c9952a', color: '#0f3a2a', border: 'none', padding: '13px', fontWeight: 700, letterSpacing: '2px', fontSize: '0.82rem', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif', textTransform: 'uppercase", marginTop: '0.5rem' }}>
