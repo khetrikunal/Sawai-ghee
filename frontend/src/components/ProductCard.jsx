@@ -10,19 +10,33 @@ export default function ProductCard({ product, dark = true }) {
 
   const handleAdd = (e) => {
     e.stopPropagation()
-    addItem(product)
-    toast.success(`${product.size} added to cart!`)
+    const firstVariant = product.variants && product.variants.length > 0 ? product.variants[0] : null
+    if (firstVariant) {
+      addItem({
+        ...product,
+        id: firstVariant.id,
+        productVariantId: firstVariant.id,
+        size: firstVariant.size,
+        price: firstVariant.price,
+        originalPrice: firstVariant.originalPrice,
+        discount: firstVariant.discount,
+        stock: firstVariant.stock,
+      })
+    } else {
+      addItem(product)
+    }
+    toast.success(`${firstVariant ? firstVariant.size : product.size} added to cart!`)
   }
 
-  const bg = dark ? 'rgba(255,255,255,0.05)' : '#fff'
+  const bg = dark ? 'rgba(15, 58, 42, 0.75)' : 'rgba(255, 255, 255, 0.9)'
   const border = dark
-    ? '1px solid rgba(201,149,42,0.3)'
-    : '1px solid #ede0b8'
+    ? '1px solid rgba(201, 149, 42, 0.3)'
+    : '1px solid rgba(201, 149, 42, 0.15)'
 
-  const nameColor = dark ? '#fdf6e3' : '#1a5c3e'
+  const nameColor = dark ? '#fdf6e3' : '#0f3a2a'
   const subColor = dark
-    ? 'rgba(255,255,255,0.45)'
-    : '#7a6040'
+    ? 'rgba(245, 234, 208, 0.8)'
+    : '#4a3820'
 
   return (
     <motion.div
@@ -32,6 +46,8 @@ export default function ProductCard({ product, dark = true }) {
       style={{
         background: bg,
         border,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         overflow: 'hidden',
         cursor: 'pointer',
         position: 'relative',
@@ -85,7 +101,7 @@ export default function ProductCard({ product, dark = true }) {
 
         {/* PRODUCT IMAGE */}
         <img
-          src={product.image}
+          src={product.imageUrl || product.image || product.image_url}
           alt={product.name}
           className="product-image"
         />
@@ -200,12 +216,7 @@ export default function ProductCard({ product, dark = true }) {
           object-fit:contain;
           position:relative;
           z-index:1;
-          transition:transform 0.3s ease;
-          filter:drop-shadow(0 12px 20px rgba(0,0,0,0.25));
-        }
-
-        .product-card:hover .product-image{
-          transform:scale(1.06);
+          filter:drop-shadow(0 12px 24px rgba(0,0,0,0.2));
         }
       `}</style>
     </motion.div>

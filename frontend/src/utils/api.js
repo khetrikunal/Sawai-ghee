@@ -9,13 +9,6 @@ const api = axios.create({
 // Attach JWT token to every request
 api.interceptors.request.use((config) => {
   try {
-    console.log('[api] request:', {
-      baseURL: config.baseURL,
-      url: config.url,
-      fullUrl: `${config.baseURL || ''}${config.url || ''}`,
-      method: config.method,
-    })
-
     const token = useAuthStore.getState().token
     if (token) config.headers.Authorization = `Bearer ${token}`
   } catch (e) {
@@ -46,6 +39,7 @@ export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
   getProfile: () => api.get('/auth/me'),
+  updateProfile: (data) => api.put('/auth/profile', data),
 }
 
 // ─── Products ─────────────────────────────────────────────────────────────────
@@ -56,15 +50,31 @@ export const productAPI = {
   update: (id, data) => api.put(`/products/${id}`, data),
   delete: (id) => api.delete(`/products/${id}`),
   updateStock: (id, qty) => api.patch(`/products/${id}/stock`, { quantity: qty }),
+  uploadImage: (formData) => api.post('/products/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  search: (query) => api.get(`/products/search?q=${query}`),
+}
+
+// ─── Coupons ──────────────────────────────────────────────────────────────────
+export const couponAPI = {
+  validate: (code) => api.get(`/coupons/validate?code=${code}`),
+  getAll: () => api.get('/coupons'),
+  create: (data) => api.post('/coupons', data),
+  update: (id, data) => api.put(`/coupons/${id}`, data),
+  delete: (id) => api.delete(`/coupons/${id}`),
 }
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
 export const orderAPI = {
   create: (data) => api.post('/orders', data),
-  getMyOrders: () => api.get('/orders/my'),
+  getMyOrders: (params) => api.get('/orders/my', { params }),
   getById: (id) => api.get(`/orders/${id}`),
   getAll: (params) => api.get('/orders/all', { params }),
   updateStatus: (id, status) => api.patch(`/orders/${id}/status`, { status }),
+  requestReturn: (id, data) => api.post(`/orders/${id}/return`, data),
+  getInvoiceUrl: (id) => `${import.meta.env.VITE_API_BASE_URL || '/api'}/orders/${id}/invoice`,
+  track: (id) => api.get(`/orders/${id}/track`),
 }
 
 // ─── Payments ─────────────────────────────────────────────────────────────────

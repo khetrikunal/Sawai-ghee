@@ -42,15 +42,15 @@ export default function Navbar() {
   return (
     <>
       <nav
+        className="glass-panel-dark"
         style={{
           position: 'sticky',
           top: 0,
           zIndex: 100,
-          background: '#0f3a2a',
-          borderBottom: '2px solid #c9952a',
+          borderBottom: '2px solid rgba(201, 149, 42, 0.4)',
           transition: 'all 0.3s ease',
           boxShadow: scrolled
-            ? '0 4px 24px rgba(0,0,0,0.25)'
+            ? '0 4px 24px rgba(0,0,0,0.35)'
             : 'none',
         }}
       >
@@ -96,9 +96,13 @@ export default function Navbar() {
                   </Link>
                 )}
 
-                <span className="user-name">
+                <Link to="/my-orders" className="nav-link" style={{ fontSize: '0.78rem' }}>
+                  Orders
+                </Link>
+
+                <Link to="/profile" className="nav-link" style={{ fontSize: '0.78rem' }}>
                   {user.name?.split(' ')[0]}
-                </span>
+                </Link>
 
                 <button
                   onClick={() => {
@@ -310,12 +314,29 @@ export default function Navbar() {
           padding:6px 12px;
           cursor:pointer;
           font-size:0.75rem;
+          transition: all 0.2s ease-out;
+        }
+        .logout-btn:hover {
+          background: rgba(201,149,42,0.1);
+          border-color: #e4b84a;
+          color: #e4b84a;
         }
 
         .admin-link{
           color:#e4b84a;
           text-decoration:none;
           font-size:0.78rem;
+          font-weight:700;
+          letter-spacing:1px;
+          text-transform:uppercase;
+          border: 1px solid #e4b84a;
+          padding: 6px 12px;
+          border-radius: 4px;
+          transition: all 0.2s ease-out;
+        }
+        .admin-link:hover {
+          background: #e4b84a;
+          color: #0f3a2a;
         }
 
         /* MOBILE */

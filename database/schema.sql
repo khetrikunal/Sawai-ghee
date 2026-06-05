@@ -110,6 +110,17 @@ CREATE TABLE reviews (
     UNIQUE (user_id, product_id)
 );
 
+-- ─── Return Requests ────────────────────────────────────────────────────────
+CREATE TABLE return_requests (
+    id          BIGSERIAL    PRIMARY KEY,
+    order_id    VARCHAR(30)  NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    user_id     BIGINT       NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    reason      TEXT         NOT NULL,
+    status      VARCHAR(20)  NOT NULL DEFAULT 'REQUESTED'
+                    CHECK (status IN ('REQUESTED','APPROVED','REJECTED','COMPLETED')),
+    created_at  TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
 -- ─── Indexes ──────────────────────────────────────────────────────────────────
 CREATE INDEX idx_orders_user_id       ON orders(user_id);
 CREATE INDEX idx_orders_status        ON orders(status);

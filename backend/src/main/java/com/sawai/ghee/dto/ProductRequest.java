@@ -4,17 +4,24 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class ProductRequest {
     @NotBlank String name;
-    @NotBlank String size;
-    @NotNull @Positive BigDecimal price;
-    BigDecimal originalPrice;
-    Integer discount;
     String description;
-    @NotNull @Min(0) Integer stock;
     String badge;
     String imageUrl;
     Boolean active = true;
+
+    // Nested lists for multi-image variants support
+    private List<ProductVariantRequest> variants;
+    private List<String> images;
+
+    // Legacy fallback fields for backward compatibility
+    String size;
+    BigDecimal price;
+    BigDecimal originalPrice;
+    Integer discount;
+    Integer stock;
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { Helmet } from 'react-helmet-async'
 import ProductCard from '../components/ProductCard'
 import { productAPI } from '../utils/api'
 import productImage from '../assets/bottels.jpeg'
@@ -33,17 +34,45 @@ const FALLBACK = [
 export default function ProductsPage() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
-    productAPI
-      .getAll({ active: true })
-      .then((r) => setProducts(r.data))
-      .catch(() => setProducts(FALLBACK))
-      .finally(() => setLoading(false))
-  }, [])
+    setLoading(true)
+    if (searchQuery.trim() === '') {
+      productAPI
+        .getAll({ active: true })
+        .then((r) => setProducts(r.data))
+        .catch(() => setProducts(FALLBACK))
+        .finally(() => setLoading(false))
+    } else {
+      const delayDebounce = setTimeout(() => {
+        productAPI
+          .search(searchQuery)
+          .then((r) => setProducts(r.data))
+          .catch(() => {
+            const filtered = FALLBACK.filter(p =>
+              p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              p.size.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+            setProducts(filtered)
+          })
+          .finally(() => setLoading(false))
+      }, 300)
+      return () => clearTimeout(delayDebounce)
+    }
+  }, [searchQuery])
 
   return (
     <div>
+      <Helmet>
+        <title>Desi Gir Cow A2 Ghee Shop | Sawai Ghee</title>
+        <meta name="description" content="Browse our collection of authentic, laboratory-tested A2 Gir Cow Vedic Bilona Ghee. Handcrafted in Satara in small batches. Available in 500ml, 1L, and 5L packs." />
+        <meta name="keywords" content="buy A2 ghee, Gir cow ghee 1 litre, Vedic bilona ghee 500ml, organic ghee price, pure ghee Maharashtra" />
+        <link rel="canonical" href="https://sawaighee.com/products" />
+        <meta property="og:title" content="Desi Gir Cow A2 Ghee Shop | Sawai Ghee" />
+        <meta property="og:description" content="Authentic Vedic Bilona A2 Ghee. Choose from 500ml, 1L, or 5L premium glass jars." />
+        <meta property="og:url" content="https://sawaighee.com/products" />
+      </Helmet>
       {/* PAGE HERO */}
       <div
         style={{
@@ -234,15 +263,53 @@ export default function ProductsPage() {
             ))}
           </div>
 
+          {/* SEARCH BAR */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '3rem' }}>
+            <div style={{ width: '100%', maxWidth: 500, position: 'relative' }}>
+              <input
+                type="text"
+                placeholder="Search premium ghee..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: '100%',
+                  background: 'rgba(255, 255, 255, 0.9)',
+                  border: '1px solid rgba(201, 149, 42, 0.3)',
+                  padding: '12px 20px 12px 48px',
+                  borderRadius: '30px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                  color: '#0f3a2a',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+                  transition: 'border-color 0.2s',
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#c9952a'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(201, 149, 42, 0.3)'}
+              />
+              <span style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', color: '#c9952a', fontSize: '1.1rem' }}>🔍</span>
+            </div>
+          </div>
+
           {loading ? (
-            <div
-              style={{
-                textAlign: 'center',
-                padding: '4rem',
-                color: '#7a6040',
-              }}
-            >
-              Loading products...
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+              {[1, 2, 3].map((n) => (
+                <div key={n} style={{ background: '#fff', border: '1px solid rgba(201, 149, 42, 0.15)', borderRadius: '18px', padding: '1.5rem', height: 400, display: 'flex', flexDirection: 'column', gap: '1rem', overflow: 'hidden' }}>
+                  <div style={{ height: 220, background: 'rgba(0,0,0,0.03)', borderRadius: '12px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+                  <div style={{ height: 24, width: '70%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+                  <div style={{ height: 16, width: '40%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+                  <div style={{ display: 'flex', gap: '10px', marginTop: 'auto' }}>
+                    <div style={{ height: 30, width: '30%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+                    <div style={{ height: 38, width: '100%', background: 'rgba(0,0,0,0.03)', borderRadius: '10px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : products.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#0f3a2a' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌾</div>
+              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', fontWeight: 600 }}>No products found</h3>
+              <p style={{ opacity: 0.7 }}>Try searching for a different term.</p>
             </div>
           ) : (
             <div
@@ -266,6 +333,13 @@ export default function ProductsPage() {
             </div>
           )}
         </div>
+        <style>{`
+          @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+          }
+        `}</style>
       </section>
     </div>
   )

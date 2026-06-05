@@ -15,11 +15,14 @@ import OrderSuccessPage from './pages/OrderSuccessPage'
 import ContactPage from './pages/ContactPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import MyOrdersPage from './pages/MyOrdersPage'
+import ProfilePage from './pages/ProfilePage'
+import NotFoundPage from './pages/NotFoundPage'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminProducts from './pages/admin/AdminProducts'
 import AdminOrders from './pages/admin/AdminOrders'
+import AdminCoupons from './pages/admin/AdminCoupons'
 import ProtectedRoute from './components/ProtectedRoute'
-import logo from './assets/logo.jpeg'
 
 
 function App() {
@@ -50,10 +53,18 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
+        {/* Authenticated user routes */}
+        <Route path="/my-orders" element={<ProtectedRoute><Navbar /><MyOrdersPage /><Footer /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Navbar /><ProfilePage /><Footer /></ProtectedRoute>} />
+
         {/* Admin routes */}
         <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
         <Route path="/admin/products" element={<ProtectedRoute adminOnly><AdminProducts /></ProtectedRoute>} />
         <Route path="/admin/orders" element={<ProtectedRoute adminOnly><AdminOrders /></ProtectedRoute>} />
+        <Route path="/admin/coupons" element={<ProtectedRoute adminOnly><AdminCoupons /></ProtectedRoute>} />
+
+        {/* 404 catch-all */}
+        <Route path="*" element={<><Navbar /><NotFoundPage /><Footer /></>} />
       </Routes>
     </BrowserRouter>
   )

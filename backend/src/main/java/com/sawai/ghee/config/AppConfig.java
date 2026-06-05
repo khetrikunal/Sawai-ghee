@@ -24,13 +24,12 @@ public class AppConfig {
         return args -> {
             String adminEmail = "admin@sawaighee.com";
             if (!userRepository.existsByEmail(adminEmail)) {
-                User admin = User.builder()
-                        .name("Admin")
-                        .email(adminEmail)
-                        .password(passwordEncoder.encode("Admin@123"))
-                        .phone("9130643003")
-                        .role(User.Role.ADMIN)
-                        .build();
+                User admin = new User();
+                admin.setName("Admin");
+                admin.setEmail(adminEmail);
+                admin.setPassword(passwordEncoder.encode("Admin@123"));
+                admin.setPhone("9130643003");
+                admin.setRole(User.Role.ADMIN);
                 userRepository.save(admin);
                 System.out.println("✅ Default admin user created: " + adminEmail);
                 System.out.println("⚠️  Please change the admin password immediately after first login!");

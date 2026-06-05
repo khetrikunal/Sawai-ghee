@@ -1,12 +1,13 @@
 package com.sawai.ghee.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,22 +25,8 @@ public class Product {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String size;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
-
-    @Column(precision = 10, scale = 2)
-    private BigDecimal originalPrice;
-
-    private Integer discount;
-
     @Column(columnDefinition = "TEXT")
     private String description;
-
-    @Builder.Default
-    private Integer stock = 0;
 
     private String badge;
 
@@ -47,6 +34,16 @@ public class Product {
 
     @Builder.Default
     private Boolean active = true;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonManagedReference
+    @Builder.Default
+    private List<ProductVariant> variants = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonManagedReference
+    @Builder.Default
+    private List<ProductImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Review> reviews;

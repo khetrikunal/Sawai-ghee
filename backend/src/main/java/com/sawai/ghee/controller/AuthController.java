@@ -29,13 +29,12 @@ public class AuthController {
         if (userRepository.existsByEmail(req.getEmail())) {
             return ResponseEntity.badRequest().body(ApiResponse.error("Email already registered"));
         }
-        User user = User.builder()
-                .name(req.getName())
-                .email(req.getEmail())
-                .password(passwordEncoder.encode(req.getPassword()))
-                .phone(req.getPhone())
-                .role(User.Role.USER)
-                .build();
+        User user = new User();
+        user.setName(req.getName());
+        user.setEmail(req.getEmail());
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
+        user.setPhone(req.getPhone());
+        user.setRole(User.Role.USER);
         userRepository.save(user);
         return buildAuthResponse(user);
     }
@@ -56,6 +55,17 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserDto>> me(@AuthenticationPrincipal UserDetails principal) {
         User user = userRepository.findByEmail(principal.getUsername()).orElseThrow();
         return ResponseEntity.ok(ApiResponse.ok(toUserDto(user)));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<ApiResponse<UserDto>> updateProfile(
+            @RequestBody UserDto req,
+            @AuthenticationPrincipal UserDetails principal) {
+        User user = userRepository.findByEmail(principal.getUsername()).orElseThrow();
+        if (req.getName() != null && !req.getName().isBlank()) user.setName(req.getName());
+        if (req.getPhone() != null) user.setPhone(req.getPhone());
+        userRepository.save(user);
+        return ResponseEntity.ok(ApiResponse.ok("Profile updated", toUserDto(user)));
     }
 
     private ResponseEntity<ApiResponse<AuthResponse>> buildAuthResponse(User user) {

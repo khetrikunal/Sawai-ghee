@@ -1,6 +1,7 @@
 package com.sawai.ghee.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -32,12 +33,20 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(a -> a
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/products/**").permitAll()
-                .requestMatchers("/api/reviews/**").permitAll()
+                .requestMatchers("/error").permitAll()
+                // Products: only GET is public; write operations require ADMIN
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/products/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/products/**").hasRole("ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+                // Reviews: GET public, POST requires auth
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/reviews/**").permitAll()
                 .requestMatchers("/api/wholesale/leads").permitAll()
                 .requestMatchers("/api/payments/webhook").permitAll()
                 .requestMatchers("/api/orders/all").hasRole("ADMIN")
                 .requestMatchers("/api/wholesale/leads/all").hasRole("ADMIN")
+                .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -54,13 +63,17 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
+    @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
+    private String allowedOrigins;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedOrigins(List.of(allowedOrigins.split(",")));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;

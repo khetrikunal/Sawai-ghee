@@ -2,9 +2,9 @@ package com.sawai.ghee.service;
 
 import com.sawai.ghee.model.Order;
 import com.sawai.ghee.model.OrderItem;
-import com.sawai.ghee.model.Product;
+import com.sawai.ghee.model.ProductVariant;
 import com.sawai.ghee.repository.OrderRepository;
-import com.sawai.ghee.repository.ProductRepository;
+import com.sawai.ghee.repository.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,22 +17,22 @@ import java.util.Optional;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
+    private final ProductVariantRepository productVariantRepository;
     private final EmailService emailService;
 
     @Transactional
     public Order processOrder(Order order, List<OrderItem> items) {
         // Validate & reduce stock
         for (OrderItem item : items) {
-            Product product = productRepository.findById(item.getProduct().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Product not found: " + item.getProduct().getId()));
+            ProductVariant variant = productVariantRepository.findById(item.getProductVariant().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Product Variant not found: " + item.getProductVariant().getId()));
 
-            if (product.getStock() < item.getQuantity()) {
+            if (variant.getStock() < item.getQuantity()) {
                 throw new IllegalArgumentException(
-                        "Insufficient stock for: " + product.getName() + " " + product.getSize());
+                        "Insufficient stock for: " + variant.getProduct().getName() + " " + variant.getSize());
             }
-            product.setStock(product.getStock() - item.getQuantity());
-            productRepository.save(product);
+            variant.setStock(variant.getStock() - item.getQuantity());
+            productVariantRepository.save(variant);
             item.setOrder(order);
         }
 
@@ -47,7 +47,7 @@ public class OrderService {
         return saved;
     }
 
-    public Optional<Order> findById(String orderId) {
+    public Optional<Order> findOrderById(String orderId) {
         return orderRepository.findById(orderId);
     }
 }

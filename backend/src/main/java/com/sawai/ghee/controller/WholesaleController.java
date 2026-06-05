@@ -21,12 +21,15 @@ public class WholesaleController {
 
     @PostMapping("/leads")
     public ResponseEntity<ApiResponse<String>> submitLead(@Valid @RequestBody WholesaleLeadRequest req) {
-        WholesaleLead lead = WholesaleLead.builder()
-                .name(req.getName()).phone(req.getPhone()).email(req.getEmail())
-                .quantity(req.getQuantity()).businessType(req.getBusinessType())
-                .city(req.getCity()).message(req.getMessage())
-                .status(WholesaleLead.LeadStatus.NEW)
-                .build();
+        WholesaleLead lead = new WholesaleLead();
+        lead.setName(req.getName());
+        lead.setPhone(req.getPhone());
+        lead.setEmail(req.getEmail());
+        lead.setQuantity(req.getQuantity());
+        lead.setBusinessType(req.getBusinessType());
+        lead.setCity(req.getCity());
+        lead.setMessage(req.getMessage());
+        lead.setStatus(WholesaleLead.LeadStatus.NEW);
         wholesaleLeadRepository.save(lead);
         return ResponseEntity.ok(ApiResponse.ok("Thank you! We will contact you within 24 hours.", null));
     }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { Helmet } from 'react-helmet-async'
 import toast from 'react-hot-toast'
 import { useCartStore } from '../store'
 import { productAPI } from '../utils/api'
@@ -46,53 +47,155 @@ export default function ProductDetailPage() {
   const navigate = useNavigate()
 
   const [product, setProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [selectedVariant, setSelectedVariant] = useState(null)
+  const [activeImage, setActiveImage] = useState('')
   const [qty, setQty] = useState(1)
 
   const addItem = useCartStore((s) => s.addItem)
 
   useEffect(() => {
+    setLoading(true)
     productAPI
       .getById(id)
-      .then((r) => setProduct(r.data))
-      .catch(() =>
-        setProduct(
-          FALLBACK_PRODUCTS[id] || FALLBACK_PRODUCTS[1]
-        )
-      )
+      .then((r) => {
+        setProduct(r.data)
+        if (r.data.variants && r.data.variants.length > 0) {
+          setSelectedVariant(r.data.variants[0])
+        }
+        if (r.data.images && r.data.images.length > 0) {
+          setActiveImage(r.data.images[0])
+        }
+      })
+      .catch(() => {
+        const fallbackProd = FALLBACK_PRODUCTS[id] || FALLBACK_PRODUCTS[1]
+        setProduct(fallbackProd)
+        setSelectedVariant(fallbackProd)
+      })
+      .finally(() => setLoading(false))
   }, [id])
 
-  if (!product)
+  if (loading) {
     return (
-      <div
-        style={{
-          padding: '5rem',
-          textAlign: 'center',
-          color: '#7a6040',
-        }}
-      >
-        Loading...
+      <div style={{ background: '#fdf6e3', padding: '5rem 1.5rem', minHeight: '80vh' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: '4rem', alignItems: 'start' }}>
+          {/* IMAGE SKELETON */}
+          <div style={{ height: 420, background: 'rgba(0,0,0,0.03)', borderRadius: '20px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+          {/* CONTENT SKELETON */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div style={{ height: 40, width: '80%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+            <div style={{ height: 20, width: '40%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+            <div style={{ height: 35, width: '30%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+            <div style={{ height: 100, width: '100%', background: 'rgba(0,0,0,0.03)', borderRadius: '8px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+            <div style={{ height: 50, width: '60%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+            <div style={{ display: 'flex', gap: '1rem', height: 45 }}>
+              <div style={{ flex: 1, background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+              <div style={{ flex: 1, background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+            </div>
+          </div>
+        </div>
+        <style>{`
+          @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+          }
+        `}</style>
       </div>
     )
+  }
+
+  if (!product) {
+    return (
+      <div style={{ padding: '5rem', textAlign: 'center', color: '#7a6040', background: '#fdf6e3' }}>
+        Product not found
+      </div>
+    )
+  }
 
   const handleAddCart = () => {
-    addItem(product, qty)
-    toast.success(`${product.size} added to cart!`)
+    if (selectedVariant) {
+      addItem({
+        ...product,
+        id: selectedVariant.id,
+        productVariantId: selectedVariant.id,
+        size: selectedVariant.size,
+        price: selectedVariant.price,
+        originalPrice: selectedVariant.originalPrice,
+        discount: selectedVariant.discount,
+        stock: selectedVariant.stock,
+      }, qty)
+      toast.success(`${product.name} (${selectedVariant.size}) added to cart!`)
+    } else {
+      addItem(product, qty)
+      toast.success(`${product.size} added to cart!`)
+    }
   }
 
   const handleBuyNow = () => {
-    addItem(product, qty)
+    if (selectedVariant) {
+      addItem({
+        ...product,
+        id: selectedVariant.id,
+        productVariantId: selectedVariant.id,
+        size: selectedVariant.size,
+        price: selectedVariant.price,
+        originalPrice: selectedVariant.originalPrice,
+        discount: selectedVariant.discount,
+        stock: selectedVariant.stock,
+      }, qty)
+    } else {
+      addItem(product, qty)
+    }
     navigate('/checkout')
   }
 
+  const currentPrice = selectedVariant ? selectedVariant.price : product.price
+  const currentSize = selectedVariant ? selectedVariant.size : product.size
+  const currentStock = selectedVariant ? selectedVariant.stock : (product.stock || 0)
+  const currentOriginalPrice = selectedVariant ? selectedVariant.originalPrice : product.originalPrice
+  const currentDiscount = selectedVariant ? selectedVariant.discount : product.discount
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": activeImage || product.imageUrl || productImage,
+    "description": product.description || "Premium A2 Gir Cow Ghee made with the traditional Vedic Bilona method.",
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "INR",
+      "price": currentPrice,
+      "itemCondition": "https://schema.org/NewCondition",
+      "availability": currentStock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "seller": {
+        "@type": "Organization",
+        "name": "Sawai Gir Farm"
+      }
+    }
+  };
+
   return (
     <div>
+      <Helmet>
+        <title>{`${product.name} (${currentSize}) | Sawai Ghee`}</title>
+        <meta name="description" content={product.description?.substring(0, 150) || `Buy authentic Sawai Gir Amrut Ghee (${currentSize}) online. Handcrafted using traditional Vedic Bilona method.`} />
+        <link rel="canonical" href={`https://sawaighee.com/products/${product.id}`} />
+        <meta property="og:title" content={`${product.name} (${currentSize}) | Sawai Ghee`} />
+        <meta property="og:description" content={product.description?.substring(0, 150) || "Handcrafted A2 Vedic Bilona Ghee."} />
+        <meta property="og:image" content={activeImage || product.imageUrl || productImage} />
+        <meta property="og:url" content={`https://sawaighee.com/products/${product.id}`} />
+        <script type="application/ld+json">
+          {JSON.stringify(jsonLd)}
+        </script>
+      </Helmet>
+
       {/* BREADCRUMB */}
       <div
         style={{
           background: '#0f3a2a',
           padding: '1rem 1.5rem',
-          borderBottom:
-            '1px solid rgba(201,149,42,0.3)',
+          borderBottom: '1px solid rgba(201,149,42,0.3)',
         }}
       >
         <div
@@ -115,9 +218,7 @@ export default function ProductDetailPage() {
             Home
           </span>
 
-          <span style={{ color: 'rgba(255,255,255,0.25)' }}>
-            /
-          </span>
+          <span style={{ color: 'rgba(255,255,255,0.25)' }}>/</span>
 
           <span
             onClick={() => navigate('/products')}
@@ -129,13 +230,20 @@ export default function ProductDetailPage() {
             Products
           </span>
 
-          <span style={{ color: 'rgba(255,255,255,0.25)' }}>
-            /
+          <span style={{ color: 'rgba(255,255,255,0.25)' }}>/</span>
+
+          <span style={{ color: 'rgba(255,255,255,0.8)' }}>
+            {product.name}
           </span>
 
-          <span style={{ color: '#e4b84a' }}>
-            {product.size}
-          </span>
+          {currentSize && (
+            <>
+              <span style={{ color: 'rgba(255,255,255,0.25)' }}>/</span>
+              <span style={{ color: '#e4b84a' }}>
+                {currentSize}
+              </span>
+            </>
+          )}
         </div>
       </div>
 
@@ -157,71 +265,103 @@ export default function ProductDetailPage() {
             alignItems: 'start',
           }}
         >
-          {/* IMAGE */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            style={{
-              background: '#0f3a2a',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '3rem',
-              position: 'relative',
-              minHeight: 420,
-              overflow: 'hidden',
-              borderRadius: '20px',
-            }}
-          >
-            <div
-              className="pattern-overlay"
+          {/* Left Column: Image and Gallery */}
+          <div>
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
               style={{
-                position: 'absolute',
-                inset: 0,
+                background: '#0f3a2a',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '3rem',
+                position: 'relative',
+                minHeight: 420,
+                overflow: 'hidden',
+                borderRadius: '20px',
               }}
-            />
+            >
+              <div
+                className="pattern-overlay"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                }}
+              />
 
-            {/* BADGE */}
-            {product.badge && (
+              {/* BADGE */}
+              {product.badge && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    left: '1rem',
+                    background: '#c9952a',
+                    color: '#0f3a2a',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    padding: '5px 12px',
+                    letterSpacing: '1px',
+                    zIndex: 2,
+                  }}
+                >
+                  {product.badge}
+                </div>
+              )}
+
+              {/* GLOW */}
               <div
                 style={{
                   position: 'absolute',
-                  top: '1rem',
-                  left: '1rem',
-                  background: '#c9952a',
-                  color: '#0f3a2a',
-                  fontSize: '0.7rem',
-                  fontWeight: 700,
-                  padding: '5px 12px',
-                  letterSpacing: '1px',
-                  zIndex: 2,
+                  width: 350,
+                  height: 350,
+                  borderRadius: '50%',
+                  background:
+                    'radial-gradient(circle, rgba(201,149,42,0.22) 0%, transparent 70%)',
                 }}
-              >
-                {product.badge}
+              />
+
+              {/* PRODUCT IMAGE */}
+              <img
+                src={activeImage || product.imageUrl || product.image || productImage}
+                alt={product.name}
+                className="product-main-image"
+              />
+            </motion.div>
+
+            {/* THUMBNAILS GALLERY */}
+            {product.images && product.images.length > 1 && (
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '1rem' }}>
+                {product.images.map((imgUrl, index) => {
+                  const isActive = activeImage === imgUrl || (!activeImage && index === 0);
+                  return (
+                    <img
+                      key={imgUrl}
+                      src={imgUrl}
+                      alt={`Thumbnail ${index + 1}`}
+                      onClick={() => {
+                        setActiveImage(imgUrl);
+                      }}
+                      style={{
+                        width: 70,
+                        height: 70,
+                        objectFit: 'contain',
+                        background: '#0f3a2a',
+                        border: isActive ? '2px solid #c9952a' : '1px solid rgba(201, 149, 42, 0.15)',
+                        padding: '4px',
+                        cursor: 'pointer',
+                        transition: 'border 0.2s',
+                        borderRadius: '6px',
+                      }}
+                    />
+                  )
+                })}
               </div>
             )}
+          </div>
 
-            {/* GLOW */}
-            <div
-              style={{
-                position: 'absolute',
-                width: 350,
-                height: 350,
-                borderRadius: '50%',
-                background:
-                  'radial-gradient(circle, rgba(201,149,42,0.22) 0%, transparent 70%)',
-              }}
-            />
-
-            {/* PRODUCT IMAGE */}
-            <img
-              src={product.image}
-              alt={product.name}
-              className="product-main-image"
-            />
-          </motion.div>
-
-          {/* INFO */}
+          {/* Right Column: Info */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -248,8 +388,7 @@ export default function ProductDetailPage() {
                 marginBottom: '1.5rem',
               }}
             >
-              {product.size} · A2 Gir Cow Ghee · Vedic
-              Bilona Method
+              {currentSize} · A2 Gir Cow Ghee · Vedic Bilona Method
             </p>
 
             {/* PRICE */}
@@ -269,11 +408,10 @@ export default function ProductDetailPage() {
                   color: '#c9952a',
                 }}
               >
-                ₹
-                {product.price?.toLocaleString('en-IN')}
+                ₹{currentPrice?.toLocaleString('en-IN')}
               </span>
 
-              {product.originalPrice && (
+              {currentOriginalPrice && (
                 <span
                   style={{
                     fontSize: '1rem',
@@ -281,14 +419,11 @@ export default function ProductDetailPage() {
                     textDecoration: 'line-through',
                   }}
                 >
-                  ₹
-                  {product.originalPrice?.toLocaleString(
-                    'en-IN'
-                  )}
+                  ₹{currentOriginalPrice?.toLocaleString('en-IN')}
                 </span>
               )}
 
-              {product.discount && (
+              {currentDiscount && (
                 <span
                   style={{
                     fontSize: '0.82rem',
@@ -298,7 +433,7 @@ export default function ProductDetailPage() {
                     fontWeight: 600,
                   }}
                 >
-                  {product.discount}% OFF
+                  {currentDiscount}% OFF
                 </span>
               )}
             </div>
@@ -310,9 +445,44 @@ export default function ProductDetailPage() {
                 marginBottom: '1.75rem',
               }}
             >
-              Inclusive of all taxes · Free shipping
-              above ₹999
+              Inclusive of all taxes · Free shipping above ₹999
             </p>
+
+            {/* VARIANT SELECTOR */}
+            {product.variants && product.variants.length > 1 && (
+              <div style={{ marginBottom: '1.75rem' }}>
+                <h4 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.15rem', color: '#0f3a2a', marginBottom: '0.75rem' }}>
+                  Select Size
+                </h4>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  {product.variants.map((v) => {
+                    const isSelected = selectedVariant && selectedVariant.id === v.id
+                    return (
+                      <button
+                        key={v.id}
+                        onClick={() => {
+                          setSelectedVariant(v);
+                        }}
+                        style={{
+                          background: isSelected ? '#0f3a2a' : 'rgba(255,255,255,0.7)',
+                          color: isSelected ? '#e4b84a' : '#0f3a2a',
+                          border: isSelected ? '1px solid #c9952a' : '1px solid #ede0b8',
+                          padding: '8px 16px',
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: '0.82rem',
+                          fontWeight: isSelected ? 'bold' : 'normal',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        {v.size} - ₹{v.price}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* DESCRIPTION */}
             <p
@@ -323,11 +493,7 @@ export default function ProductDetailPage() {
                 marginBottom: '1.75rem',
               }}
             >
-              Premium A2 Gir Cow Ghee made with the
-              traditional Vedic Bilona method. Each
-              batch is handcrafted from the milk of
-              desi Gir cows raised on our farm in
-              Phaltan, Maharashtra.
+              {product.description || `Premium A2 Gir Cow Ghee made with the traditional Vedic Bilona method. Each batch is handcrafted from the milk of desi Gir cows raised on our farm in Phaltan, Maharashtra.`}
             </p>
 
             {/* BENEFITS */}
@@ -459,10 +625,7 @@ export default function ProductDetailPage() {
               >
                 Total:{' '}
                 <strong style={{ color: '#0f3a2a' }}>
-                  ₹
-                  {(
-                    product.price * qty
-                  ).toLocaleString('en-IN')}
+                  ₹{(currentPrice * qty).toLocaleString('en-IN')}
                 </strong>
               </span>
             </div>
@@ -476,41 +639,11 @@ export default function ProductDetailPage() {
                 flexWrap: 'wrap',
               }}
             >
-              <button
-                onClick={handleAddCart}
-                style={{
-                  flex: 1,
-                  padding: '14px',
-                  background: '#0f3a2a',
-                  color: '#e4b84a',
-                  border: 'none',
-                  fontWeight: 700,
-                  letterSpacing: '1.5px',
-                  fontSize: '0.82rem',
-                  cursor: 'pointer',
-                  textTransform: 'uppercase',
-                  minWidth: 140,
-                }}
-              >
+              <button onClick={handleAddCart} className="btn-add-cart">
                 Add to Cart
               </button>
 
-              <button
-                onClick={handleBuyNow}
-                style={{
-                  flex: 1,
-                  padding: '14px',
-                  background: '#c9952a',
-                  color: '#0f3a2a',
-                  border: 'none',
-                  fontWeight: 700,
-                  letterSpacing: '1.5px',
-                  fontSize: '0.82rem',
-                  cursor: 'pointer',
-                  textTransform: 'uppercase',
-                  minWidth: 140,
-                }}
-              >
+              <button onClick={handleBuyNow} className="btn-buy-now">
                 Buy Now
               </button>
             </div>
@@ -518,27 +651,24 @@ export default function ProductDetailPage() {
             {/* FARM INFO */}
             <div
               style={{
-                background: '#f5ead0',
-                padding: '1rem 1.25rem',
-                borderLeft: '3px solid #c9952a',
+                background: '#fff',
+                padding: '1.25rem',
+                border: '1px solid rgba(201, 149, 42, 0.25)',
+                borderRadius: '8px',
                 fontSize: '0.8rem',
                 color: '#4a3820',
                 lineHeight: 1.65,
+                boxShadow: '0 4px 12px rgba(74, 56, 32, 0.02)',
               }}
             >
               <strong style={{ color: '#0f3a2a' }}>
                 Manufactured by: Sawai Gir Farm
               </strong>
               <br />
-              At: Malwadi, Post: Bibi, Tal:
-              Phaltan, Dist: Satara – 415537,
-              Maharashtra
+              At: Malwadi, Post: Bibi, Tal: Phaltan, Dist: Satara – 415537, Maharashtra
               <br />
               Customer Care:{' '}
-              <a
-                href="tel:9130643003"
-                style={{ color: '#c9952a' }}
-              >
+              <a href="tel:9130643003" style={{ color: '#c9952a', fontWeight: 600 }}>
                 9130643003
               </a>
             </div>
@@ -556,6 +686,43 @@ export default function ProductDetailPage() {
           z-index:2;
           filter:drop-shadow(0 18px 30px rgba(0,0,0,0.35));
           animation:float 4s ease-in-out infinite;
+        }
+
+        .btn-add-cart {
+          flex: 1;
+          padding: 14px;
+          background: #0f3a2a;
+          color: #f5ead0;
+          border: 1px solid rgba(201, 149, 42, 0.3);
+          font-weight: 700;
+          letter-spacing: 1.5px;
+          font-size: 0.82rem;
+          cursor: pointer;
+          text-transform: uppercase;
+          min-width: 140;
+          transition: all 0.2s ease-out;
+        }
+        .btn-add-cart:hover {
+          background: #1a5c3e;
+          color: #fff;
+        }
+
+        .btn-buy-now {
+          flex: 1;
+          padding: 14px;
+          background: #c9952a;
+          color: #0f3a2a;
+          border: none;
+          font-weight: 700;
+          letter-spacing: 1.5px;
+          font-size: 0.82rem;
+          cursor: pointer;
+          text-transform: uppercase;
+          min-width: 140;
+          transition: all 0.2s ease-out;
+        }
+        .btn-buy-now:hover {
+          background: #e4b84a;
         }
 
         @keyframes float{

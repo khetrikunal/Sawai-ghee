@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
   --green-dark: #0f3a2a;
@@ -124,3 +124,26 @@ h1, h2, h3, h4, .font-serif {
   height: 3px;
   background: linear-gradient(90deg, var(--gold-dark), var(--gold));
 }
+
+/* Liquid Glass Utilities */
+.glass-panel {
+  background: rgba(253, 246, 227, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 149, 42, 0.15);
+}
+
+.glass-panel-dark {
+  background: rgba(15, 58, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 149, 42, 0.25);
+}
+
+/* Skeleton animation for loaders */
+.skeleton {
+  background: linear-gradient(90deg, var(--cream) 25%, var(--cream-dark) 50%, var(--cream) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+

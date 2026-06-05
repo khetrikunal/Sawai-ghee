@@ -48,10 +48,11 @@ public class ReviewController {
                     .body(ApiResponse.error("You have already reviewed this product"));
         }
 
-        Review review = Review.builder()
-                .product(product).user(user)
-                .rating(req.getRating()).comment(req.getComment())
-                .build();
+        Review review = new Review();
+        review.setProduct(product);
+        review.setUser(user);
+        review.setRating(req.getRating());
+        review.setComment(req.getComment());
 
         return ResponseEntity.ok(ApiResponse.ok(toDto(reviewRepository.save(review))));
     }
