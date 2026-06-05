@@ -1,7 +1,6 @@
 package com.sawai.ghee.controller;
 
-import com.sawai.ghee.dto.ApiResponse;
-import com.sawai.ghee.dto.WholesaleLeadRequest;
+import com.sawai.ghee.dto.*;
 import com.sawai.ghee.model.WholesaleLead;
 import com.sawai.ghee.repository.WholesaleLeadRepository;
 import jakarta.validation.Valid;
@@ -38,5 +37,17 @@ public class WholesaleController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<WholesaleLead>> getAllLeads() {
         return ResponseEntity.ok(wholesaleLeadRepository.findAllByOrderByCreatedAtDesc());
+    }
+
+    @PatchMapping("/leads/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<String>> updateLeadStatus(
+            @PathVariable Long id,
+            @RequestBody OrderStatusRequest req) {
+        return wholesaleLeadRepository.findById(id).map(l -> {
+            l.setStatus(WholesaleLead.LeadStatus.valueOf(req.getStatus().toUpperCase()));
+            wholesaleLeadRepository.save(l);
+            return ResponseEntity.ok(ApiResponse.ok("Lead status updated successfully", (String) null));
+        }).orElse(ResponseEntity.notFound().build());
     }
 }

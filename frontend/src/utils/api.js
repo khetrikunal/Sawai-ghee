@@ -75,6 +75,8 @@ export const orderAPI = {
   requestReturn: (id, data) => api.post(`/orders/${id}/return`, data),
   getInvoiceUrl: (id) => `${import.meta.env.VITE_API_BASE_URL || '/api'}/orders/${id}/invoice`,
   track: (id) => api.get(`/orders/${id}/track`),
+  getAllReturns: () => api.get('/orders/returns/all'),
+  updateReturnStatus: (returnId, status) => api.patch(`/orders/returns/${returnId}/status`, { status }),
 }
 
 // ─── Payments ─────────────────────────────────────────────────────────────────
@@ -87,6 +89,7 @@ export const paymentAPI = {
 export const wholesaleAPI = {
   submitLead: (data) => api.post('/wholesale/leads', data),
   getAllLeads: () => api.get('/wholesale/leads'),
+  updateLeadStatus: (id, status) => api.patch(`/wholesale/leads/${id}/status`, { status }),
 }
 
 // ─── Reviews ─────────────────────────────────────────────────────────────────

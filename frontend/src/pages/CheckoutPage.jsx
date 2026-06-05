@@ -54,20 +54,29 @@ export default function CheckoutPage() {
       const loaded = await loadRazorpay()
       if (!loaded) throw new Error('Razorpay SDK failed to load')
 
-      // Create order on backend
+      // Create order on backend first (in PENDING status)
       const orderPayload = {
         items: items.map(i => ({ productVariantId: i.productVariantId || i.id, quantity: i.qty, price: i.price })),
         shippingAddress: form,
         total, couponCode: coupon || null,
       }
 
-      let razorpayOrderId, backendOrderId
+      let backendOrderId, razorpayOrderId
       try {
-        const { data } = await paymentAPI.createOrder({ amount: total, currency: 'INR', receipt: `sawai_${Date.now()}` })
-        razorpayOrderId = data.id
-        backendOrderId = data.backendOrderId
+        const { data: orderRes } = await orderAPI.create(orderPayload)
+        backendOrderId = orderRes.data.id
       } catch (err) {
-        toast.error('Could not initiate payment. Please try again.')
+        toast.error(err.response?.data?.message || 'Could not register order details. Please try again.')
+        setLoading(false)
+        return
+      }
+
+      // Create Razorpay order referencing the backend order ID
+      try {
+        const { data: paymentRes } = await paymentAPI.createOrder({ amount: total, currency: 'INR', receipt: backendOrderId })
+        razorpayOrderId = paymentRes.data.id
+      } catch (err) {
+        toast.error('Could not initiate payment system. Please try again.')
         setLoading(false)
         return
       }
@@ -90,9 +99,13 @@ export default function CheckoutPage() {
               razorpaySignature: response.razorpay_signature,
               backendOrderId,
             })
-          } catch { /* demo */ }
-          clearCart()
-          navigate('/order-success', { state: { orderId: backendOrderId, total, form } })
+            toast.success('Payment verified successfully!')
+            clearCart()
+            navigate('/order-success', { state: { orderId: backendOrderId, total, form } })
+          } catch (err) {
+            toast.error(err.response?.data?.message || 'Payment verification failed. Please contact support.')
+            setLoading(false)
+          }
         },
         modal: { ondismiss: () => setLoading(false) },
       }

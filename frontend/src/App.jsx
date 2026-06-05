@@ -22,6 +22,8 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminProducts from './pages/admin/AdminProducts'
 import AdminOrders from './pages/admin/AdminOrders'
 import AdminCoupons from './pages/admin/AdminCoupons'
+import AdminLeads from './pages/admin/AdminLeads'
+import AdminReturns from './pages/admin/AdminReturns'
 import ProtectedRoute from './components/ProtectedRoute'
 
 
@@ -62,6 +64,8 @@ function App() {
         <Route path="/admin/products" element={<ProtectedRoute adminOnly><AdminProducts /></ProtectedRoute>} />
         <Route path="/admin/orders" element={<ProtectedRoute adminOnly><AdminOrders /></ProtectedRoute>} />
         <Route path="/admin/coupons" element={<ProtectedRoute adminOnly><AdminCoupons /></ProtectedRoute>} />
+        <Route path="/admin/leads" element={<ProtectedRoute adminOnly><AdminLeads /></ProtectedRoute>} />
+        <Route path="/admin/returns" element={<ProtectedRoute adminOnly><AdminReturns /></ProtectedRoute>} />
 
         {/* 404 catch-all */}
         <Route path="*" element={<><Navbar /><NotFoundPage /><Footer /></>} />

@@ -59,6 +59,26 @@ export function AdminSidebar({ active }) {
       )
     },
     {
+      to: '/admin/leads',
+      label: 'Wholesale Leads',
+      key: 'leads',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '10px', display: 'inline-block', verticalAlign: 'middle' }}>
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      )
+    },
+    {
+      to: '/admin/returns',
+      label: 'Returns',
+      key: 'returns',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '10px', display: 'inline-block', verticalAlign: 'middle' }}>
+          <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+      )
+    },
+    {
       to: '/',
       label: 'View Site',
       key: 'site',
@@ -115,7 +135,7 @@ export function AdminDashboard() {
 
   useEffect(() => {
     Promise.allSettled([
-      orderAPI.getAll({ page: 0, size: 50 }), // Get recent bulk orders for calculations
+      orderAPI.getAll({ page: 0, size: 1000 }), // Get a large list of orders for calculations
       productAPI.getAll({ paginate: false }),
       wholesaleAPI.getAllLeads()
     ])
@@ -766,6 +786,164 @@ export function AdminCoupons() {
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+  )
+}
+
+
+export function AdminLeads() {
+  const [leads, setLeads] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const loadLeads = () => {
+    setLoading(true)
+    wholesaleAPI.getAllLeads()
+      .then(res => setLeads(res.data || []))
+      .catch(() => toast.error('Could not load wholesale leads'))
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => { loadLeads() }, [])
+
+  const handleStatusChange = async (id, status) => {
+    try {
+      await wholesaleAPI.updateLeadStatus(id, status)
+      toast.success('Lead status updated successfully!')
+      loadLeads()
+    } catch {
+      toast.error('Failed to update lead status')
+    }
+  }
+
+  const statusColors = { NEW: '#2563eb', CONTACTED: '#d97706', CONVERTED: '#16a34a', CLOSED: '#dc2626' }
+
+  return (
+    <div style={ADMIN_STYLE.wrapper}>
+      <AdminSidebar active="leads" />
+      <div style={ADMIN_STYLE.main}>
+        <h1 style={{ fontFamily: "'Cormorant Garamond', serif", color: '#e4b84a', fontSize: '2.5rem', marginBottom: '2.5rem', fontWeight: 700 }}>Wholesale Leads</h1>
+        
+        {loading ? (
+          <div style={{ color: '#fff', textAlign: 'center', padding: '3rem' }}>Loading leads...</div>
+        ) : leads.length === 0 ? (
+          <div style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', padding: '3rem', border: '1px solid rgba(201,149,42,0.15)', borderRadius: '8px' }}>No B2B wholesale leads registered yet.</div>
+        ) : (
+          <div style={{ background: '#0f3a2a', border: '1px solid rgba(201,149,42,0.15)', borderRadius: '8px', overflow: 'auto', boxShadow: '0 8px 30px rgba(0,0,0,0.15)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(201,149,42,0.2)', background: 'rgba(7, 31, 18, 0.4)' }}>
+                  {['Name / Contact', 'Business / City', 'Quantity', 'Message', 'Status', 'Update Status'].map(h => (
+                    <th key={h} style={{ padding: '1rem 1.25rem', textAlign: 'left', color: '#e4b84a', fontSize: '0.72rem', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {leads.map(l => (
+                  <tr key={l.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', transition: 'background 0.2s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                    <td style={{ padding: '1rem 1.25rem' }}>
+                      <div style={{ color: '#fdf6e3', fontSize: '0.88rem', fontWeight: 500 }}>{l.name}</div>
+                      <div style={{ color: 'rgba(253, 246, 227, 0.5)', fontSize: '0.8rem', marginTop: '3px' }}>📞 {l.phone}</div>
+                      {l.email && <div style={{ color: 'rgba(253, 246, 227, 0.5)', fontSize: '0.8rem' }}>✉️ {l.email}</div>}
+                    </td>
+                    <td style={{ padding: '1rem 1.25rem' }}>
+                      <div style={{ color: '#fdf6e3', fontSize: '0.85rem' }}>{l.businessType || 'Not specified'}</div>
+                      <div style={{ color: 'rgba(253, 246, 227, 0.5)', fontSize: '0.8rem', marginTop: '3px' }}>📍 {l.city || '—'}</div>
+                    </td>
+                    <td style={{ padding: '1rem 1.25rem', color: '#e4b84a', fontWeight: 600, fontSize: '0.85rem' }}>{l.quantity}</td>
+                    <td style={{ padding: '1rem 1.25rem', color: 'rgba(253, 246, 227, 0.75)', fontSize: '0.82rem', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={l.message}>{l.message || '—'}</td>
+                    <td style={{ padding: '1rem 1.25rem' }}>
+                      <span style={{ background: statusColors[l.status] || '#666', color: '#fff', fontSize: '0.68rem', padding: '4px 10px', fontWeight: 700, borderRadius: '4px', letterSpacing: '0.5px' }}>{l.status}</span>
+                    </td>
+                    <td style={{ padding: '1rem 1.25rem' }}>
+                      <select value={l.status} onChange={e => handleStatusChange(l.id, e.target.value)}
+                        style={{ background: '#1a5c3e', color: '#fdf6e3', border: '1px solid rgba(201,149,42,0.3)', padding: '6px 12px', borderRadius: '4px', fontSize: '0.82rem', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", outline: 'none' }}>
+                        {['NEW', 'CONTACTED', 'CONVERTED', 'CLOSED'].map(s => <option key={s} style={{ background: '#0f3a2a' }}>{s}</option>)}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export function AdminReturns() {
+  const [returns, setReturns] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const loadReturns = () => {
+    setLoading(true)
+    orderAPI.getAllReturns()
+      .then(res => setReturns(res.data || []))
+      .catch(() => toast.error('Could not load returns list'))
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => { loadReturns() }, [])
+
+  const handleStatusChange = async (returnId, status) => {
+    try {
+      await orderAPI.updateReturnStatus(returnId, status)
+      toast.success('Return status updated successfully!')
+      loadReturns()
+    } catch {
+      toast.error('Failed to update return status')
+    }
+  }
+
+  const statusColors = { REQUESTED: '#d97706', APPROVED: '#2563eb', REJECTED: '#dc2626', COMPLETED: '#16a34a' }
+
+  return (
+    <div style={ADMIN_STYLE.wrapper}>
+      <AdminSidebar active="returns" />
+      <div style={ADMIN_STYLE.main}>
+        <h1 style={{ fontFamily: "'Cormorant Garamond', serif", color: '#e4b84a', fontSize: '2.5rem', marginBottom: '2.5rem', fontWeight: 700 }}>Return Requests</h1>
+        
+        {loading ? (
+          <div style={{ color: '#fff', textAlign: 'center', padding: '3rem' }}>Loading return tickets...</div>
+        ) : returns.length === 0 ? (
+          <div style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', padding: '3rem', border: '1px solid rgba(201,149,42,0.15)', borderRadius: '8px' }}>No active return tickets registered yet.</div>
+        ) : (
+          <div style={{ background: '#0f3a2a', border: '1px solid rgba(201,149,42,0.15)', borderRadius: '8px', overflow: 'auto', boxShadow: '0 8px 30px rgba(0,0,0,0.15)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(201,149,42,0.2)', background: 'rgba(7, 31, 18, 0.4)' }}>
+                  {['Return ID', 'Order Reference', 'Customer Name', 'Reason', 'Status', 'Update Status'].map(h => (
+                    <th key={h} style={{ padding: '1rem 1.25rem', textAlign: 'left', color: '#e4b84a', fontSize: '0.72rem', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {returns.map(r => (
+                  <tr key={r.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', transition: 'background 0.2s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                    <td style={{ padding: '1rem 1.25rem', color: '#fdf6e3', fontSize: '0.88rem', fontWeight: 600 }}>RET-{r.id}</td>
+                    <td style={{ padding: '1rem 1.25rem', color: '#e4b84a', fontSize: '0.85rem', fontFamily: 'monospace', fontWeight: 600 }}>{r.orderId}</td>
+                    <td style={{ padding: '1rem 1.25rem', color: '#fdf6e3', fontSize: '0.88rem', fontWeight: 500 }}>{r.customerName || '—'}</td>
+                    <td style={{ padding: '1rem 1.25rem', color: 'rgba(253, 246, 227, 0.85)', fontSize: '0.82rem', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.reason}</td>
+                    <td style={{ padding: '1rem 1.25rem' }}>
+                      <span style={{ background: statusColors[r.status] || '#666', color: '#fff', fontSize: '0.68rem', padding: '4px 10px', fontWeight: 700, borderRadius: '4px', letterSpacing: '0.5px' }}>{r.status}</span>
+                    </td>
+                    <td style={{ padding: '1rem 1.25rem' }}>
+                      <select value={r.status} onChange={e => handleStatusChange(r.id, e.target.value)}
+                        style={{ background: '#1a5c3e', color: '#fdf6e3', border: '1px solid rgba(201,149,42,0.3)', padding: '6px 12px', borderRadius: '4px', fontSize: '0.82rem', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", outline: 'none' }}>
+                        {['REQUESTED', 'APPROVED', 'REJECTED', 'COMPLETED'].map(s => <option key={s} style={{ background: '#0f3a2a' }}>{s}</option>)}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )

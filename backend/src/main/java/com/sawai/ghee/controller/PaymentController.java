@@ -3,6 +3,7 @@ package com.sawai.ghee.controller;
 import com.razorpay.RazorpayClient;
 import com.sawai.ghee.dto.*;
 import com.sawai.ghee.model.Order;
+import com.sawai.ghee.model.Payment;
 import com.sawai.ghee.repository.OrderRepository;
 import com.sawai.ghee.repository.PaymentRepository;
 import jakarta.validation.Valid;
@@ -76,6 +77,17 @@ public class PaymentController {
                 orderRepository.findById(req.getBackendOrderId()).ifPresent(o -> {
                     o.setStatus(Order.OrderStatus.PROCESSING);
                     orderRepository.save(o);
+
+                    // Persist payment details in the database
+                    Payment payment = Payment.builder()
+                            .order(o)
+                            .razorpayOrderId(req.getRazorpayOrderId())
+                            .razorpayPaymentId(req.getRazorpayPaymentId())
+                            .razorpaySignature(req.getRazorpaySignature())
+                            .amount(o.getTotal())
+                            .status(Payment.PaymentStatus.SUCCESS)
+                            .build();
+                    paymentRepository.save(payment);
                 });
             }
 
