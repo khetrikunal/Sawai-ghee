@@ -25,9 +25,19 @@ public class WholesaleLead {
     private String phone;
 
     private String email;
-    private String quantity;
+
+    private String planType; // 5L, 10L, 100L
+
+    private Integer qty200ml;
+    private Integer qty500ml;
+    private Integer qty1L;
+
+    private Double totalLiters;
+    private Double totalPrice;
+
     private String businessType;
     private String city;
+
 
     @Column(columnDefinition = "TEXT")
     private String message;

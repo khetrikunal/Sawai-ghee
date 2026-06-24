@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet-async'
 import toast from 'react-hot-toast'
 import { useCartStore, useAuthStore } from '../store'
 import { productAPI, reviewAPI } from '../utils/api'
-import productImage from '../assets/bottel.jpeg'
+import productImage from '../assets/bottel (3).jpeg'
 
 const FALLBACK_PRODUCTS = {
   1: {

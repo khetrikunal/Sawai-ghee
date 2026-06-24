@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import ProductCard from '../components/ProductCard'
 import { productAPI } from '../utils/api'
 import productImage from '../assets/bottels.jpeg'
-import product from '../assets/bottel.jpeg'
+import product from '../assets/bottel (3).jpeg'
 
 
 const FALLBACK = [

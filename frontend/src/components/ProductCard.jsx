@@ -100,11 +100,28 @@ export default function ProductCard({ product, dark = true }) {
         )}
 
         {/* PRODUCT IMAGE */}
-        <img
-          src={product.imageUrl || product.image || product.image_url}
-          alt={product.name}
-          className="product-image"
-        />
+        {(() => {
+          const resolvedSrc =
+            product?.imageUrl ||
+            product?.image ||
+            product?.image_url ||
+            product?.imagePath ||
+            product?.mainImage ||
+            (Array.isArray(product?.images) ? product.images[0] : undefined)
+
+          return (
+            <img
+              src={resolvedSrc || '/fallback.png'}
+              alt={product?.name || 'Product'}
+              className="product-image"
+              onError={(e) => {
+                e.currentTarget.onerror = null
+                e.currentTarget.src = '/fallback.png'
+              }}
+            />
+          )
+        })()}
+
       </div>
 
       {/* BODY */}

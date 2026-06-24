@@ -6,7 +6,13 @@ import ProductCard from '../components/ProductCard'
 import { productAPI } from '../utils/api'
 import bgImage from '../assets/bottels.jpeg'
 import logovittiba from '../assets/vittho.jpeg'
-import bgImage1 from '../assets/bottel.jpeg'
+import bgImage1 from '../assets/bottel (3).jpeg'
+import heroVideo from '../assets/backgroundVideo.mp4'
+import '../styles/hero.css'
+
+
+
+
 
 const FEATURES = [
   {
@@ -113,6 +119,20 @@ export default function HomePage() {
       </Helmet>
       {/* HERO SECTION */}
       <section className="hero-section">
+        <video
+          className="hero-video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          controls={false}
+          disablePictureInPicture
+          disableRemotePlayback
+          preload="metadata"
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
+        <div className="hero-video-overlay" />
         <div className="pattern-overlay" style={{ position: 'absolute', inset: 0 }} />
         <div className="hero-container">
           {/* LEFT CONTENT */}
@@ -123,8 +143,8 @@ export default function HomePage() {
           >
             {/* LOGO BADGE */}
             <div className="hero-badge">
-              <img src={logovittiba} alt="Vithoba Ventures" className="hero-badge-logo" />
-              <span>✦ Vithoba Ventures Presents ✦</span>
+              <img src={logovittiba} alt="Vituraya Ventures" className="hero-badge-logo" />
+              <span>✦ Vituraya Ventures Presents ✦</span>
             </div>
 
             {/* TITLE */}
@@ -180,17 +200,8 @@ export default function HomePage() {
         </div>
 
         <style>{`
-          .hero-section {
-            background: linear-gradient(135deg, #0a2819 0%, #0f3a2a 50%, #134630 100%);
-            min-height: 92vh;
-            display: flex;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-            border-bottom: 2px solid #c9952a;
-          }
+          /* hero specific inline styles removed (moved to styles/hero.css) */
           .hero-container {
-            max-width: 1200px;
             margin: 0 auto;
             padding: 5rem 1.5rem;
             display: grid;
@@ -200,6 +211,11 @@ export default function HomePage() {
             width: 100%;
             position: relative;
             z-index: 2;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .animate-float {
+              animation: none;
+            }
           }
           .hero-badge {
             display: inline-flex;

@@ -5,26 +5,183 @@ import toast from 'react-hot-toast'
 import { wholesaleAPI } from '../utils/api'
 
 const TIERS = [
+  // New premium wholesale tiers (retail struck values are shown in UI)
   {
-    label: '200ml · Buy 5+ Bottles',
-    price: '₹540 / bottle',
-    saving: 'Save ₹100/bottle (Actual ₹640)',
+    size: '200ml',
+    tierLabel: '5L · 100 Bottles',
+    pricePerBottle: 600, // ₹600/bottle
+    discountLine: 'Save ₹40/bottle (₹640 struck)',
+    unitEquivalent: '5L',
   },
   {
-    label: '500ml · Buy 5+ Bottles',
-    price: '₹1,350 / bottle',
-    saving: 'Save ₹250/bottle (Actual ₹1,600)',
+    size: '200ml',
+    tierLabel: '10L · 200 Bottles',
+    pricePerBottle: 580, // ₹580/bottle
+    discountLine: 'Save ₹60/bottle (₹640 struck)',
+    unitEquivalent: '10L',
   },
   {
-    label: '1L · Buy 5+ Bottles',
-    price: '₹2,700 / bottle',
-    saving: 'Save ₹500/bottle (Actual ₹3,200)',
+    size: '200ml',
+    tierLabel: '100L · 2000 Bottles',
+    pricePerBottle: 520, // ₹520/bottle
+    discountLine: 'Save ₹120/bottle (₹640 struck)',
+    unitEquivalent: '100L',
+  },
+
+  {
+    size: '500ml',
+    tierLabel: '5L · 10 Bottles',
+    pricePerBottle: 1500, // ₹1500/bottle
+    discountLine: 'Save ₹100/bottle (₹1600 struck)',
+    unitEquivalent: '5L',
+  },
+  {
+    size: '500ml',
+    tierLabel: '10L · 20 Bottles',
+    pricePerBottle: 1450, // ₹1450/bottle
+    discountLine: 'Save ₹150/bottle (₹1600 struck)',
+    unitEquivalent: '10L',
+  },
+  {
+    size: '500ml',
+    tierLabel: '100L · 200 Bottles',
+    pricePerBottle: 1300, // ₹1300/bottle
+    discountLine: 'Save ₹300/bottle (₹1600 struck)',
+    unitEquivalent: '100L',
+  },
+
+  {
+    size: '1L',
+    tierLabel: '5L · 5 Bottles',
+    pricePerBottle: 3000, // ₹3000/bottle
+    discountLine: 'Save ₹200/bottle (₹3200 struck)',
+    unitEquivalent: '5L',
+  },
+  {
+    size: '1L',
+    tierLabel: '10L · 10 Bottles',
+    pricePerBottle: 2900, // ₹2900/bottle
+    discountLine: 'Save ₹300/bottle (₹3200 struck)',
+    unitEquivalent: '10L',
+  },
+  {
+    size: '1L',
+    tierLabel: '100L · 100 Bottles',
+    pricePerBottle: 2600, // ₹2600/bottle
+    discountLine: 'Save ₹600/bottle (₹3200 struck)',
+    unitEquivalent: '100L',
   },
 ]
 
 export default function WholesalePage() {
-  const [form, setForm] = useState({ name: '', phone: '', email: '', quantity: '', businessType: '', city: '', message: '' })
   const [loading, setLoading] = useState(false)
+
+  const PLAN_TIER = {
+    '5L': { limitLiters: 5, ratePerLitre: 2800 },
+    '10L': { limitLiters: 10, ratePerLitre: 2700 },
+    '100L': { limitLiters: 100, ratePerLitre: 2500 },
+  }
+
+  const [selectedPlan, setSelectedPlan] = useState('5L')
+
+  const [qty200ml, setQty200ml] = useState(0)
+  const [qty500ml, setQty500ml] = useState(0)
+  const [qty1L, setQty1L] = useState(0)
+
+  const computedLiters = (qty200ml * 0.2) + (qty500ml * 0.5) + (qty1L * 1)
+  const totalLiters = Math.round(computedLiters * 10) / 10 // 1 decimal precision
+  const remainingLiters = Math.max(0, Math.round((PLAN_TIER[selectedPlan].limitLiters - computedLiters) * 10) / 10)
+  const totalPrice = Math.round(computedLiters * PLAN_TIER[selectedPlan].ratePerLitre)
+
+  const [form, setForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    planType: '5L',
+    qty200ml: 0,
+    qty500ml: 0,
+    qty1L: 0,
+    businessType: '',
+    city: '',
+    message: ''
+  })
+
+  const syncFormPricing = (nextPlan = selectedPlan, nextQty200ml = qty200ml, nextQty500ml = qty500ml, nextQty1L = qty1L) => {
+    setForm((prev) => ({
+      ...prev,
+      planType: nextPlan,
+      qty200ml: nextQty200ml,
+      qty500ml: nextQty500ml,
+      qty1L: nextQty1L,
+    }))
+  }
+
+  const canAdd = (deltaLiters) => {
+    const nextLiters = computedLiters + deltaLiters
+    return nextLiters <= PLAN_TIER[selectedPlan].limitLiters + 1e-9
+  }
+
+  const inc200 = () => {
+    if (!canAdd(0.2)) return
+    setQty200ml((v) => {
+      const nv = v + 1
+      syncFormPricing(selectedPlan, nv, qty500ml, qty1L)
+      return nv
+    })
+  }
+  const dec200 = () => {
+    setQty200ml((v) => {
+      const nv = Math.max(0, v - 1)
+      syncFormPricing(selectedPlan, nv, qty500ml, qty1L)
+      return nv
+    })
+  }
+
+  const inc500 = () => {
+    if (!canAdd(0.5)) return
+    setQty500ml((v) => {
+      const nv = v + 1
+      syncFormPricing(selectedPlan, qty200ml, nv, qty1L)
+      return nv
+    })
+  }
+  const dec500 = () => {
+    setQty500ml((v) => {
+      const nv = Math.max(0, v - 1)
+      syncFormPricing(selectedPlan, qty200ml, nv, qty1L)
+      return nv
+    })
+  }
+
+  const inc1L = () => {
+    if (!canAdd(1)) return
+    setQty1L((v) => {
+      const nv = v + 1
+      syncFormPricing(selectedPlan, qty200ml, qty500ml, nv)
+      return nv
+    })
+  }
+  const dec1L = () => {
+    setQty1L((v) => {
+      const nv = Math.max(0, v - 1)
+      syncFormPricing(selectedPlan, qty200ml, qty500ml, nv)
+      return nv
+    })
+  }
+
+  const handlePlanSelect = (plan) => {
+    setSelectedPlan(plan)
+    const nextLimit = PLAN_TIER[plan].limitLiters
+    // If existing liters exceed new limit, clamp quantities by ratio (simple approach: reset to 0)
+    if (computedLiters > nextLimit + 1e-9) {
+      setQty200ml(0)
+      setQty500ml(0)
+      setQty1L(0)
+      setForm((prev) => ({ ...prev, planType: plan, qty200ml: 0, qty500ml: 0, qty1L: 0 }))
+      return
+    }
+    syncFormPricing(plan)
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -32,11 +189,19 @@ export default function WholesalePage() {
     try {
       await wholesaleAPI.submitLead(form)
       toast.success('Enquiry submitted! We will contact you within 24 hours.')
-      setForm({ name: '', phone: '', email: '', quantity: '', businessType: '', city: '', message: '' })
+      setSelectedPlan('5L')
+      setQty200ml(0)
+      setQty500ml(0)
+      setQty1L(0)
+      setForm({ name: '', phone: '', email: '', planType: '5L', qty200ml: 0, qty500ml: 0, qty1L: 0, businessType: '', city: '', message: '' })
     } catch {
       // Demo mode fallback
       toast.success('Enquiry submitted! We will contact you within 24 hours.')
-      setForm({ name: '', phone: '', email: '', quantity: '', businessType: '', city: '', message: '' })
+      setSelectedPlan('5L')
+      setQty200ml(0)
+      setQty500ml(0)
+      setQty1L(0)
+      setForm({ name: '', phone: '', email: '', planType: '5L', qty200ml: 0, qty500ml: 0, qty1L: 0, businessType: '', city: '', message: '' })
     } finally {
       setLoading(false)
     }
@@ -89,15 +254,103 @@ export default function WholesalePage() {
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2.5rem' }}>
-              {TIERS.map(t => (
-                <div key={t.label} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,149,42,0.25)', borderRadius: '8px', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <span style={{ color: '#f5ead0', fontSize: '0.88rem', fontWeight: 500 }}>{t.label}</span>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ color: '#e4b84a', fontWeight: 700, fontSize: '1.15rem' }}>{t.price}</div>
-                    <div style={{ color: '#4caf50', fontSize: '0.75rem', fontWeight: 600 }}>{t.saving}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+                {['5L','10L','100L'].map((p) => {
+                  const isActive = selectedPlan === p
+                  const { ratePerLitre } = PLAN_TIER[p]
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => handlePlanSelect(p)}
+                      style={{
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        background: isActive ? 'rgba(201,149,42,0.18)' : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${isActive ? 'rgba(201,149,42,0.75)' : 'rgba(201,149,42,0.25)'}`,
+                        borderRadius: '10px',
+                        padding: '1.2rem',
+                        color: '#f5ead0',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <div>
+                          <div style={{ color: '#e4b84a', fontWeight: 800, fontSize: '1.15rem' }}>{p} Plan</div>
+                          <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.8rem', marginTop: 4 }}>
+                            ₹{ratePerLitre.toLocaleString('en-IN')} / L
+                          </div>
+                        </div>
+                        <div style={{ color: '#f5ead0', fontWeight: 800 }}>{isActive ? 'Selected ✓' : 'Select →'}</div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Bottle Builder (shown after selection) */}
+              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,149,42,0.25)', borderRadius: '12px', padding: '1.35rem' }}>
+                <div style={{ color: '#e4b84a', fontFamily: "'Cormorant Garamond', serif", fontSize: '1.35rem', fontWeight: 700, marginBottom: '1rem' }}>
+                  🧴 Choose Bottle Combination
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', marginBottom: '1rem' }}>
+                  {[{
+                    label: '200ml',
+                    perBottleLiters: 0.2,
+                    qty: qty200ml,
+                    onInc: inc200,
+                    onDec: dec200,
+                  },{
+                    label: '500ml',
+                    perBottleLiters: 0.5,
+                    qty: qty500ml,
+                    onInc: inc500,
+                    onDec: dec500,
+                  },{
+                    label: '1L',
+                    perBottleLiters: 1,
+                    qty: qty1L,
+                    onInc: inc1L,
+                    onDec: dec1L,
+                  }].map((row) => (
+                    <div key={row.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                      <div style={{ color: '#f5ead0', fontWeight: 700 }}>{row.label}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <button type="button" onClick={row.onDec} style={{ width: 36, height: 34, borderRadius: 6, border: '1px solid rgba(201,149,42,0.35)', background: 'rgba(0,0,0,0.0)', color: '#fdf6e3', cursor: 'pointer' }}>-</button>
+                        <div style={{ minWidth: 44, textAlign: 'center', color: '#fdf6e3', fontWeight: 800 }}>{row.qty}</div>
+                        <button type="button" onClick={row.onInc} style={{ width: 36, height: 34, borderRadius: 6, border: '1px solid rgba(201,149,42,0.35)', background: 'rgba(0,0,0,0.0)', color: '#fdf6e3', cursor: 'pointer' }}>+</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.9rem' }}>
+                  <div style={{ background: 'rgba(201,149,42,0.1)', border: '1px solid rgba(201,149,42,0.25)', borderRadius: 10, padding: '0.9rem' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.8rem' }}>Selected Plan</div>
+                    <div style={{ color: '#e4b84a', fontWeight: 900, fontSize: '1.05rem', marginTop: 2 }}>{selectedPlan} (₹{PLAN_TIER[selectedPlan].ratePerLitre}/L)</div>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '0.9rem' }}>
+                    <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.8rem' }}>Remaining</div>
+                    <div style={{ color: '#4caf50', fontWeight: 900, fontSize: '1.05rem', marginTop: 2 }}>{remainingLiters}L</div>
                   </div>
                 </div>
-              ))}
+
+                <div style={{ marginTop: '1rem', padding: '0.95rem', borderRadius: 10, border: '1px solid rgba(201,149,42,0.25)', background: 'rgba(201,149,42,0.08)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div>
+                      <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.8rem' }}>Total Liters</div>
+                      <div style={{ color: '#fdf6e3', fontWeight: 900, fontSize: '1.1rem', marginTop: 2 }}>{totalLiters}L</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.8rem' }}>Total Price</div>
+                      <div style={{ color: '#e4b84a', fontWeight: 1000, fontSize: '1.25rem', marginTop: 2 }}>₹{totalPrice.toLocaleString('en-IN')}</div>
+                    </div>
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem', marginTop: 6 }}>
+                    Live preview updates instantly as you adjust bottle quantities.
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div style={{ background: 'rgba(201,149,42,0.1)', border: '1px solid rgba(201,149,42,0.25)', borderRadius: '12px', padding: '1.75rem' }}>
@@ -130,7 +383,6 @@ export default function WholesalePage() {
                 { k: 'name', l: 'Full Name', t: 'text', p: 'Your full name' },
                 { k: 'phone', l: 'Phone Number', t: 'tel', p: '+91 98765 43210' },
                 { k: 'email', l: 'Email Address', t: 'email', p: 'you@business.com' },
-                { k: 'quantity', l: 'Quantity Required', t: 'text', p: 'e.g. 50 units of 1L' },
                 { k: 'city', l: 'City / District', t: 'text', p: 'Pune, Nashik, Mumbai...' },
               ].map(f => (
                 <div key={f.k} style={{ marginBottom: '1.25rem' }}>
