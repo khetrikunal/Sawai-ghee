@@ -7,7 +7,7 @@ import { productAPI } from '../utils/api'
 import bgImage from '../assets/bottels.jpeg'
 import logovittiba from '../assets/vittho.jpeg'
 import bgImage1 from '../assets/bottel (3).jpeg'
-import heroVideo from '../assets/backgroundVideo.mp4'
+import heroVideo from '../assets/backgroundvideo2.mp4'
 import '../styles/hero.css'
 
 

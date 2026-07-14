@@ -36,6 +36,7 @@ services:
       APP_JWT_EXPIRATION: 86400000
       RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID}
       RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET}
+      CLOUDINARY_URL: ${CLOUDINARY_URL}
     ports:
       - "9090:9090"
     depends_on:
