@@ -49,7 +49,12 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
             )
+            // Ensure OPTIONS preflight is not blocked by Spring Security.
+            .authorizeHttpRequests(a -> a
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+            )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
@@ -69,9 +74,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(allowedOrigins.split(",")));
+        // Support multiple origins from comma-separated property.
+        // Provide a safe fallback for localhost + Vercel production.
+        String fallbackOrigins = "http://localhost:3000,http://localhost:5173,https://sawai-ghee.vercel.app";
+        String originListRaw = (allowedOrigins == null || allowedOrigins.isBlank()) ? fallbackOrigins : allowedOrigins;
+        config.setAllowedOrigins(List.of(originListRaw.split(",")));
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+        config.setAllowedHeaders(List.of("*"));
+        // Allow credentials only if your frontend sends cookies.
+        // For JWT Authorization header, credentials are typically not required.
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
