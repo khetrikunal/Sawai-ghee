@@ -137,7 +137,7 @@ export default function Footer() {
               <div>Maharashtra – 415537</div>
               <div style={{ marginTop: '0.8rem' }}>
                 <a
-                  href="https://wa.me/919130643003"
+                  href="https://wa.me/9156996309"
                   target="_blank"
                   rel="noreferrer"
                   style={{
