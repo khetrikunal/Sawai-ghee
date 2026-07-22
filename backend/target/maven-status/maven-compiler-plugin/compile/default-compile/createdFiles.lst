@@ -1,3 +1,4 @@
+com\sawai\ghee\config\CloudinaryConfig.class
 com\sawai\ghee\dto\ProductVariantDto.class
 com\sawai\ghee\exception\PaymentVerificationException.class
 com\sawai\ghee\model\WholesaleLead$LeadStatus.class
@@ -38,6 +39,7 @@ com\sawai\ghee\exception\ResourceNotFoundException.class
 com\sawai\ghee\dto\OrderItemDto.class
 com\sawai\ghee\dto\UserDto.class
 com\sawai\ghee\dto\ApiResponse.class
+com\sawai\ghee\dto\WholesaleOrderRequest.class
 com\sawai\ghee\controller\ReviewController.class
 com\sawai\ghee\model\Payment$PaymentBuilder.class
 com\sawai\ghee\dto\LoginRequest.class

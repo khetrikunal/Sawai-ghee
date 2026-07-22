@@ -32,6 +32,8 @@ public class SecurityConfig {
             .cors(c -> {})
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(a -> a
+                // Ensure OPTIONS preflight is not blocked by Spring Security.
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/error").permitAll()
                 // Products: only GET is public; write operations require ADMIN
@@ -48,10 +50,6 @@ public class SecurityConfig {
                 .requestMatchers("/api/wholesale/leads/all").hasRole("ADMIN")
                 .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
-            )
-            // Ensure OPTIONS preflight is not blocked by Spring Security.
-            .authorizeHttpRequests(a -> a
-                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

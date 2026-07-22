@@ -56,6 +56,7 @@ D:\Sawai-ghee\backend\src\main\java\com\sawai\ghee\dto\WholesaleOrderRequest.jav
 D:\Sawai-ghee\backend\src\main\java\com\sawai\ghee\repository\CouponRepository.java
 D:\Sawai-ghee\backend\src\main\java\com\sawai\ghee\dto\LoginRequest.java
 D:\Sawai-ghee\backend\src\main\java\com\sawai\ghee\model\Order.java
+D:\Sawai-ghee\backend\src\main\java\com\sawai\ghee\config\CloudinaryConfig.java
 D:\Sawai-ghee\backend\src\main\java\com\sawai\ghee\exception\PaymentVerificationException.java
 D:\Sawai-ghee\backend\src\main\java\com\sawai\ghee\service\EmailService.java
 D:\Sawai-ghee\backend\src\main\java\com\sawai\ghee\controller\WholesaleController.java
