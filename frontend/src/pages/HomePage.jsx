@@ -6,9 +6,11 @@ import ProductCard from '../components/ProductCard'
 import { productAPI } from '../utils/api'
 import bgImage from '../assets/bottels.jpeg'
 import logovittiba from '../assets/vittho.jpeg'
-import bgImage1 from '../assets/bottel (3).jpeg'
-import heroVideo from '../assets/backgroundvideo2.mp4'
 import '../styles/hero.css'
+
+// Public-folder assets — served statically by Vite, no import needed
+const heroVideo = '/backgroundVideo.mp4'
+const bgImage1 = '/bottel (3).jpeg'
 
 
 
@@ -118,7 +120,7 @@ export default function HomePage() {
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
       {/* HERO SECTION */}
-      <section className="hero-section">
+      <section className="hero-section" style={{ backgroundColor: '#071a12' }}>
         <video
           className="hero-video"
           autoPlay
@@ -128,7 +130,7 @@ export default function HomePage() {
           controls={false}
           disablePictureInPicture
           disableRemotePlayback
-          preload="metadata"
+          preload="auto"
         >
           <source src={heroVideo} type="video/mp4" />
         </video>
@@ -163,7 +165,7 @@ export default function HomePage() {
 
             {/* DESCRIPTION */}
             <p className="hero-description">
-              Pure A2 Gir Cow Ghee made with the traditional Vedic Bilona method. Crafted at Sawai Gir Farm, Phaltan — where heritage meets purity in every golden drop.
+              Pure A2 Gir Cow Ghee made with the traditional Vedic Bilona method. Handcrafted at Sawai Gir Farm, Phaltan — where sacred heritage meets uncompromised purity in every golden drop.
             </p>
 
             {/* BUTTONS */}
@@ -195,18 +197,27 @@ export default function HomePage() {
             className="hero-right"
           >
             <div className="hero-glow" />
-            <img src={bgImage1} alt="Sawai Gir Amrut Ghee" className="hero-product-image animate-float" />
+            <img
+              src={bgImage1}
+              alt="Sawai Gir Amrut Ghee - Premium A2 Gir Cow Ghee Bottle"
+              className="hero-product-image animate-float"
+              onError={(e) => {
+                e.currentTarget.onerror = null
+                e.currentTarget.src = '/fallback.png'
+              }}
+            />
           </motion.div>
         </div>
 
         <style>{`
-          /* hero specific inline styles removed (moved to styles/hero.css) */
+          /* hero specific inline styles */
           .hero-container {
+            max-width: 1360px;
             margin: 0 auto;
-            padding: 5rem 1.5rem;
+            padding: 6.5rem 2rem;
             display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 4rem;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 4.5rem;
             align-items: center;
             width: 100%;
             position: relative;
@@ -220,77 +231,83 @@ export default function HomePage() {
           .hero-badge {
             display: inline-flex;
             align-items: center;
-            gap: 14px;
-            border: 1px solid #c9952a;
+            gap: 16px;
+            border: 1.5px solid #c9952a;
             color: #e4b84a;
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-            padding: 10px 20px;
-            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 2.2px;
+            padding: 12px 26px;
+            margin-bottom: 2rem;
             text-transform: uppercase;
             border-radius: 50px;
-            background: rgba(15, 58, 42, 0.6);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 25px rgba(201,149,42,0.15);
+            background: rgba(15, 58, 42, 0.75);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 0 30px rgba(201,149,42,0.22);
           }
           .hero-badge-logo {
-            width: 48px;
-            height: 48px;
+            width: 56px;
+            height: 56px;
             object-fit: cover;
             border-radius: 50%;
             background: #fff;
-            padding: 2px;
-            border: 1.5px solid #c9952a;
+            padding: 3px;
+            border: 2px solid #c9952a;
             flex-shrink: 0;
           }
           .hero-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(2.8rem, 5vw, 4.8rem);
-            line-height: 1.05;
+            font-size: clamp(3.4rem, 6.2vw, 5.8rem);
+            line-height: 1.04;
             color: #fff;
-            margin-bottom: 0.7rem;
+            margin-bottom: 1rem;
             font-weight: 700;
+            letter-spacing: -0.5px;
           }
           .hero-title span {
             color: #e4b84a;
           }
           .hero-tagline {
             color: #f5ead0;
-            font-size: 1.25rem;
+            font-size: 1.55rem;
             font-style: italic;
             font-family: 'Cormorant Garamond', serif;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.5px;
           }
           .hero-description {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.96rem;
-            line-height: 1.8;
-            margin-bottom: 2.25rem;
-            max-width: 480px;
+            color: rgba(255,255,255,0.82);
+            font-size: 1.12rem;
+            line-height: 1.85;
+            margin-bottom: 2.6rem;
+            max-width: 560px;
           }
           .hero-buttons {
             display: flex;
-            gap: 1.2rem;
+            gap: 1.4rem;
             flex-wrap: wrap;
           }
           .trust-badges {
             display: flex;
-            gap: 2rem;
-            margin-top: 2.5rem;
+            gap: 2.5rem;
+            margin-top: 3rem;
             flex-wrap: wrap;
           }
           .trust-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.65rem;
           }
           .trust-check {
             color: #e4b84a;
-            font-weight: bold;
+            font-weight: 800;
+            font-size: 1.2rem;
           }
           .trust-text {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.8rem;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.98rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
           }
           .hero-right {
             display: flex;
@@ -300,39 +317,40 @@ export default function HomePage() {
           }
           .hero-glow {
             position: absolute;
-            width: 380px;
-            height: 380px;
-            background: radial-gradient(circle, rgba(201,149,42,0.2) 0%, transparent 70%);
+            width: 480px;
+            height: 480px;
+            background: radial-gradient(circle, rgba(201,149,42,0.3) 0%, transparent 70%);
             border-radius: 50%;
           }
           .hero-product-image {
             width: 100%;
-            max-width: 360px;
+            max-width: 480px;
             object-fit: contain;
             position: relative;
             z-index: 2;
-            filter: drop-shadow(0 20px 35px rgba(0,0,0,0.35));
+            filter: drop-shadow(0 25px 45px rgba(0,0,0,0.45));
           }
           .animate-float {
             animation: float 4s ease-in-out infinite;
           }
           @keyframes float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
+            50% { transform: translateY(-14px); }
           }
-          @media(max-width: 768px) {
+          @media(max-width: 960px) {
             .hero-container {
               grid-template-columns: 1fr;
               text-align: center;
-              gap: 2.5rem;
-              padding: 4rem 1rem;
+              gap: 3.5rem;
+              padding: 5rem 1.5rem;
             }
             .hero-right { order: -1; }
-            .hero-description { margin: 0 auto 2rem auto; }
+            .hero-description { margin: 0 auto 2.5rem auto; }
             .hero-buttons { justify-content: center; }
-            .trust-badges { justify-content: center; gap: 1rem; }
-            .hero-badge { width: 100%; justify-content: center; }
-            .hero-product-image { max-width: 240px; }
+            .trust-badges { justify-content: center; gap: 1.5rem; }
+            .hero-badge { width: auto; justify-content: center; }
+            .hero-product-image { max-width: 340px; }
+            .hero-glow { width: 340px; height: 340px; }
           }
         `}</style>
       </section>
@@ -340,29 +358,30 @@ export default function HomePage() {
       {/* WHY CHOOSE US (FEATURES) */}
       <section
         style={{
-          backgroundImage: `linear-gradient(rgba(10, 10, 10, 0.7), rgba(15, 15, 15, 0.7)), url(${bgImage})`,
+          backgroundImage: `linear-gradient(rgba(10, 10, 10, 0.75), rgba(15, 15, 15, 0.75)), url(${bgImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          padding: '6rem 1.5rem',
+          padding: '7rem 1.75rem',
         }}
       >
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1320, margin: '0 auto' }}>
           <div className="section-tag">✦ Why Choose Sawai ✦</div>
           <h2
             style={{
               textAlign: 'center',
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: 'clamp(2rem, 4vw, 2.75rem)',
+              fontSize: 'clamp(2.4rem, 4.5vw, 3.4rem)',
               color: '#fff',
-              marginBottom: '3.5rem',
-              fontWeight: 600,
+              marginBottom: '4rem',
+              fontWeight: 700,
+              letterSpacing: '-0.3px',
             }}
           >
             A legacy of purity passed down through generations
           </h2>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2.5rem' }}>
             {FEATURES.map((f, i) => (
               <motion.div
                 key={f.title}
@@ -372,30 +391,31 @@ export default function HomePage() {
                 transition={{ delay: i * 0.1, duration: 0.6 }}
                 className="gold-top"
                 style={{
-                  background: 'rgba(15, 58, 42, 0.75)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(201, 149, 42, 0.2)',
-                  padding: '2.5rem 1.75rem',
+                  background: 'rgba(15, 58, 42, 0.82)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(201, 149, 42, 0.3)',
+                  padding: '3rem 2.25rem',
                   textAlign: 'center',
-                  borderRadius: '12px',
+                  borderRadius: '16px',
                   position: 'relative',
+                  boxShadow: '0 15px 35px rgba(0,0,0,0.2)',
                 }}
               >
-                <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'center' }}>
+                <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center', transform: 'scale(1.15)' }}>
                   {f.icon}
                 </div>
                 <h3
                   style={{
                     fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: '1.35rem',
+                    fontSize: '1.65rem',
                     color: '#e4b84a',
-                    marginBottom: '0.75rem',
-                    fontWeight: 600,
+                    marginBottom: '1rem',
+                    fontWeight: 700,
                   }}
                 >
                   {f.title}
                 </h3>
-                <p style={{ fontSize: '0.85rem', color: '#f5ead0', lineHeight: 1.7 }}>
+                <p style={{ fontSize: '1.02rem', color: '#f5ead0', lineHeight: 1.8 }}>
                   {f.desc}
                 </p>
               </motion.div>
@@ -405,23 +425,23 @@ export default function HomePage() {
       </section>
 
       {/* FEATURED PRODUCTS */}
-      <section style={{ padding: '6rem 1.5rem', backgroundColor: 'var(--cream-light)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+      <section style={{ padding: '7rem 1.75rem', backgroundColor: 'var(--cream-light)' }}>
+        <div style={{ maxWidth: 1320, margin: '0 auto' }}>
           <div className="section-tag">✦ Pure Ghee Offerings ✦</div>
           <h2
             style={{
               textAlign: 'center',
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: 'clamp(2rem, 4vw, 2.75rem)',
+              fontSize: 'clamp(2.4rem, 4.5vw, 3.4rem)',
               color: 'var(--green-dark)',
-              marginBottom: '3.5rem',
-              fontWeight: 600,
+              marginBottom: '4rem',
+              fontWeight: 700,
             }}
           >
             Explore Our Traditional Vedic Packages
           </h2>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem' }}>
             {products.map((p) => (
               <ProductCard key={p.id} product={p} dark={false} />
             ))}
@@ -430,37 +450,37 @@ export default function HomePage() {
       </section>
 
       {/* VEDIC BILONA COMPARISON SECTION */}
-      <section style={{ padding: '6rem 1.5rem', backgroundColor: 'var(--cream)', borderTop: '1px solid rgba(201, 149, 42, 0.2)', borderBottom: '1px solid rgba(201, 149, 42, 0.2)' }}>
-        <div style={{ maxWidth: 960, margin: '0 auto' }}>
+      <section style={{ padding: '7rem 1.75rem', backgroundColor: 'var(--cream)', borderTop: '2px solid rgba(201, 149, 42, 0.3)', borderBottom: '2px solid rgba(201, 149, 42, 0.3)' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div className="section-tag">✦ The Bilona Difference ✦</div>
           <h2
             style={{
               textAlign: 'center',
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: 'clamp(2rem, 4vw, 2.75rem)',
+              fontSize: 'clamp(2.4rem, 4.5vw, 3.4rem)',
               color: 'var(--green-dark)',
-              marginBottom: '3.5rem',
-              fontWeight: 600,
+              marginBottom: '4rem',
+              fontWeight: 700,
             }}
           >
             Vedic Bilona Ghee vs. Commercial Ghee
           </h2>
 
-          <div style={{ overflowX: 'auto', borderRadius: '12px', border: '1px solid rgba(201,149,42,0.3)', background: 'rgba(253, 246, 227, 0.8)' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
+          <div style={{ overflowX: 'auto', borderRadius: '16px', border: '1.5px solid rgba(201,149,42,0.35)', background: 'rgba(253, 246, 227, 0.9)', boxShadow: '0 15px 40px rgba(74, 56, 32, 0.08)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
               <thead>
-                <tr style={{ background: 'var(--green-dark)', color: '#e4b84a', borderBottom: '2px solid #c9952a' }}>
-                  <th style={{ padding: '16px 20px', fontSize: '0.85rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Feature</th>
-                  <th style={{ padding: '16px 20px', fontSize: '0.85rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Sawai Gir Amrut Ghee</th>
-                  <th style={{ padding: '16px 20px', fontSize: '0.85rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Commercial Ghee</th>
+                <tr style={{ background: 'var(--green-dark)', color: '#e4b84a', borderBottom: '2.5px solid #c9952a' }}>
+                  <th style={{ padding: '20px 24px', fontSize: '1.02rem', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 700 }}>Feature</th>
+                  <th style={{ padding: '20px 24px', fontSize: '1.02rem', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 700 }}>Sawai Gir Amrut Ghee</th>
+                  <th style={{ padding: '20px 24px', fontSize: '1.02rem', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 700 }}>Commercial Ghee</th>
                 </tr>
               </thead>
               <tbody>
                 {COMP_ROWS.map((row, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid rgba(201, 149, 42, 0.15)', background: idx % 2 === 0 ? 'transparent' : 'rgba(245, 234, 208, 0.4)' }}>
-                    <td style={{ padding: '16px 20px', fontWeight: 700, fontSize: '0.85rem', color: 'var(--green-dark)' }}>{row.feature}</td>
-                    <td style={{ padding: '16px 20px', fontSize: '0.85rem', color: '#1a5c3e', fontWeight: 500 }}>✓ {row.us}</td>
-                    <td style={{ padding: '16px 20px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>✗ {row.other}</td>
+                  <tr key={idx} style={{ borderBottom: '1px solid rgba(201, 149, 42, 0.2)', background: idx % 2 === 0 ? 'transparent' : 'rgba(245, 234, 208, 0.5)' }}>
+                    <td style={{ padding: '20px 24px', fontWeight: 700, fontSize: '1.02rem', color: 'var(--green-dark)' }}>{row.feature}</td>
+                    <td style={{ padding: '20px 24px', fontSize: '1.02rem', color: '#1a5c3e', fontWeight: 600 }}>✓ {row.us}</td>
+                    <td style={{ padding: '20px 24px', fontSize: '1.02rem', color: 'var(--text-muted)' }}>✗ {row.other}</td>
                   </tr>
                 ))}
               </tbody>
@@ -470,32 +490,32 @@ export default function HomePage() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section style={{ padding: '6rem 1.5rem', backgroundColor: 'var(--cream-light)' }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+      <section style={{ padding: '7rem 1.75rem', backgroundColor: 'var(--cream-light)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div className="section-tag">✦ Client Stories ✦</div>
           <h2
             style={{
               textAlign: 'center',
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: 'clamp(2rem, 4vw, 2.75rem)',
+              fontSize: 'clamp(2.4rem, 4.5vw, 3.4rem)',
               color: 'var(--green-dark)',
-              marginBottom: '3.5rem',
-              fontWeight: 600,
+              marginBottom: '4rem',
+              fontWeight: 700,
             }}
           >
             Loved by Health-Conscious Families
           </h2>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem' }}>
             {TESTIMONIALS.map((t, idx) => (
               <div
                 key={idx}
                 style={{
                   background: '#fff',
-                  border: '1px solid #ede0b8',
-                  padding: '2.5rem 2rem',
-                  borderRadius: '12px',
-                  boxShadow: '0 10px 24px rgba(74, 56, 32, 0.04)',
+                  border: '1.5px solid #ede0b8',
+                  padding: '3rem 2.5rem',
+                  borderRadius: '16px',
+                  boxShadow: '0 14px 32px rgba(74, 56, 32, 0.06)',
                   position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
@@ -504,22 +524,22 @@ export default function HomePage() {
               >
                 <div>
                   {/* Stars */}
-                  <div style={{ display: 'flex', gap: '4px', color: '#e4b84a', marginBottom: '1.25rem' }}>
+                  <div style={{ display: 'flex', gap: '5px', color: '#e4b84a', fontSize: '1.25rem', marginBottom: '1.5rem' }}>
                     {Array.from({ length: 5 }).map((_, i) => (
                       <span key={i}>★</span>
                     ))}
                   </div>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text)', lineHeight: 1.7, fontStyle: 'italic', marginBottom: '1.5rem' }}>
+                  <p style={{ fontSize: '1.08rem', color: 'var(--text)', lineHeight: 1.8, fontStyle: 'italic', marginBottom: '2rem' }}>
                     “{t.text}”
                   </p>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--green-dark)', color: '#e4b84a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ width: 50, height: 50, borderRadius: '50%', background: 'var(--green-dark)', color: '#e4b84a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1.05rem', flexShrink: 0 }}>
                     {t.initials}
                   </div>
                   <div>
-                    <h4 style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--green-dark)', margin: 0 }}>{t.name}</h4>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t.loc}</span>
+                    <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--green-dark)', margin: 0 }}>{t.name}</h4>
+                    <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>{t.loc}</span>
                   </div>
                 </div>
               </div>

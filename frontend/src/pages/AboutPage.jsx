@@ -43,9 +43,9 @@ export default function AboutPage() {
       <div
         style={{
           background: '#0f3a2a',
-          padding: '5rem 1.5rem 4rem',
+          padding: '6.5rem 2rem 5rem',
           textAlign: 'center',
-          borderBottom: '2px solid #c9952a'
+          borderBottom: '2.5px solid #c9952a'
         }}
       >
         <motion.h1
@@ -54,9 +54,9 @@ export default function AboutPage() {
           style={{
             fontFamily: "'Cormorant Garamond', serif",
             color: '#fdf6e3',
-            fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
+            fontSize: 'clamp(3rem, 6vw, 4.8rem)',
             fontWeight: 700,
-            marginBottom: '0.5rem'
+            marginBottom: '0.75rem'
           }}
         >
           Our Story
@@ -67,7 +67,7 @@ export default function AboutPage() {
             color: '#ede0b8',
             fontStyle: 'italic',
             fontFamily: "'Cormorant Garamond', serif",
-            fontSize: '1.25rem'
+            fontSize: '1.55rem'
           }}
         >
           The pure taste of tradition, the true belief in health
@@ -81,17 +81,17 @@ export default function AboutPage() {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          padding: '6rem 1.5rem',
+          padding: '7rem 2rem',
         }}
       >
         <div
           className="about-container"
           style={{
-            maxWidth: 1200,
+            maxWidth: 1320,
             margin: '0 auto',
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: '5rem',
+            gap: '5.5rem',
             alignItems: 'center',
           }}
         >
@@ -107,16 +107,16 @@ export default function AboutPage() {
             {/* IMAGE CARD */}
             <div
               style={{
-                borderRadius: '16px',
+                borderRadius: '20px',
                 overflow: 'hidden',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.4)',
-                border: '1.5px solid rgba(201,149,42,0.3)',
+                boxShadow: '0 25px 60px rgba(0,0,0,0.45)',
+                border: '2px solid rgba(201,149,42,0.35)',
                 background: '#ffffff05',
               }}
             >
               <img
                 src={bgImage}
-                alt="Founder"
+                alt="Sawai Gir Farm & Founder"
                 className="founder-image"
               />
             </div>
@@ -124,7 +124,7 @@ export default function AboutPage() {
             {/* DESCRIPTION BELOW IMAGE */}
             <div
               style={{
-                marginTop: '1.75rem',
+                marginTop: '2rem',
                 textAlign: 'center',
               }}
             >
@@ -132,9 +132,9 @@ export default function AboutPage() {
                 style={{
                   color: '#e4b84a',
                   fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: '2rem',
-                  fontWeight: 600,
-                  marginBottom: '0.5rem',
+                  fontSize: '2.3rem',
+                  fontWeight: 700,
+                  marginBottom: '0.6rem',
                 }}
               >
                 Sawai Gir Farm
@@ -142,10 +142,10 @@ export default function AboutPage() {
 
               <p
                 style={{
-                  color: 'rgba(255,255,255,0.7)',
-                  fontSize: '0.92rem',
-                  lineHeight: 1.8,
-                  maxWidth: 500,
+                  color: 'rgba(255,255,255,0.82)',
+                  fontSize: '1.05rem',
+                  lineHeight: 1.85,
+                  maxWidth: 540,
                   margin: '0 auto',
                 }}
               >
@@ -163,10 +163,10 @@ export default function AboutPage() {
             <div
               style={{
                 color: '#e4b84a',
-                fontSize: '0.75rem',
+                fontSize: '0.9rem',
                 letterSpacing: '3px',
                 textTransform: 'uppercase',
-                marginBottom: '1rem',
+                marginBottom: '1.25rem',
                 fontWeight: 700,
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -179,10 +179,10 @@ export default function AboutPage() {
             <h2
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
-                fontSize: 'clamp(2.2rem, 4vw, 3.2rem)',
+                fontSize: 'clamp(2.6rem, 4.5vw, 3.8rem)',
                 color: '#fff',
-                lineHeight: 1.1,
-                marginBottom: '1.5rem',
+                lineHeight: 1.08,
+                marginBottom: '1.75rem',
                 fontWeight: 700,
               }}
             >
@@ -193,10 +193,10 @@ export default function AboutPage() {
 
             <p
               style={{
-                color: 'rgba(255,255,255,0.75)',
+                color: 'rgba(255,255,255,0.82)',
                 lineHeight: 1.9,
-                fontSize: '0.95rem',
-                marginBottom: '1rem',
+                fontSize: '1.08rem',
+                marginBottom: '1.25rem',
               }}
             >
               Sawai Gir Amrut Ghee was born from a deep reverence for India’s ancestral wisdom and authentic dairy traditions.
@@ -204,10 +204,10 @@ export default function AboutPage() {
 
             <p
               style={{
-                color: 'rgba(255,255,255,0.75)',
+                color: 'rgba(255,255,255,0.82)',
                 lineHeight: 1.9,
-                fontSize: '0.95rem',
-                marginBottom: '1rem',
+                fontSize: '1.08rem',
+                marginBottom: '1.25rem',
               }}
             >
               Using the ancient Vedic Bilona method, we create pure A2 Gir Cow Ghee that preserves nutrition, aroma, and authenticity in every golden spoon.
@@ -215,20 +215,20 @@ export default function AboutPage() {
 
             <p
               style={{
-                color: 'rgba(255,255,255,0.75)',
+                color: 'rgba(255,255,255,0.82)',
                 lineHeight: 1.9,
-                fontSize: '0.95rem',
+                fontSize: '1.08rem',
               }}
             >
-              Every jar carries the trust of generations and the promise of purity for modern families.
+              Every jar carries the trust of generations and the promise of uncompromised purity for modern families.
             </p>
 
             {/* STATS */}
             <div
               style={{
                 display: 'flex',
-                gap: '2.5rem',
-                marginTop: '2.5rem',
+                gap: '3rem',
+                marginTop: '3rem',
                 flexWrap: 'wrap',
               }}
             >
@@ -240,10 +240,12 @@ export default function AboutPage() {
                 <div key={l}>
                   <div
                     style={{
-                      fontSize: '2.2rem',
-                      fontWeight: 700,
+                      fontSize: '2.8rem',
+                      fontWeight: 800,
                       color: '#e4b84a',
                       fontFamily: "'Cormorant Garamond', serif",
+                      lineHeight: 1,
+                      marginBottom: '0.35rem',
                     }}
                   >
                     {n}
@@ -251,10 +253,11 @@ export default function AboutPage() {
 
                   <div
                     style={{
-                      fontSize: '0.72rem',
-                      color: 'rgba(255,255,255,0.6)',
-                      letterSpacing: '1px',
+                      fontSize: '0.85rem',
+                      color: 'rgba(255,255,255,0.75)',
+                      letterSpacing: '1.5px',
                       textTransform: 'uppercase',
+                      fontWeight: 600,
                     }}
                   >
                     {l}
@@ -269,87 +272,88 @@ export default function AboutPage() {
         <style>{`
           .founder-image{
             width:100%;
-            height:540px;
+            height:560px;
             object-fit:cover;
             display:block;
             background:#fff;
           }
 
-          @media(max-width:768px){
+          @media(max-width:960px){
             .about-container{
               grid-template-columns:1fr !important;
-              gap:3.5rem !important;
+              gap:4rem !important;
             }
 
             .founder-image{
               height:auto;
-              max-height:400px;
+              max-height:440px;
             }
           }
         `}</style>
       </section>
 
       {/* BILONA PROCESS SECTION */}
-      <section style={{ padding: '6rem 1.5rem', backgroundColor: 'var(--cream)', borderTop: '1px solid rgba(201, 149, 42, 0.15)' }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+      <section style={{ padding: '7rem 2rem', backgroundColor: 'var(--cream)', borderTop: '2px solid rgba(201, 149, 42, 0.25)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div className="section-tag">✦ Our Churning Process ✦</div>
           <h2
             style={{
               textAlign: 'center',
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: 'clamp(2rem, 4vw, 2.75rem)',
+              fontSize: 'clamp(2.4rem, 4.5vw, 3.4rem)',
               color: 'var(--green-dark)',
-              marginBottom: '4.5rem',
-              fontWeight: 600,
+              marginBottom: '5rem',
+              fontWeight: 700,
             }}
           >
             The Traditional Vedic Bilona Method
           </h2>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '2.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '3rem' }}>
             {STEPS.map((s) => (
               <div
                 key={s.n}
                 style={{
                   background: '#fff',
-                  border: '1px solid rgba(201, 149, 42, 0.2)',
-                  borderRadius: '12px',
-                  padding: '2.5rem 1.5rem 2rem',
+                  border: '1.5px solid rgba(201, 149, 42, 0.25)',
+                  borderRadius: '16px',
+                  padding: '3rem 2rem 2.25rem',
                   position: 'relative',
-                  boxShadow: '0 8px 24px rgba(74, 56, 32, 0.03)',
+                  boxShadow: '0 12px 30px rgba(74, 56, 32, 0.05)',
                 }}
               >
                 <div style={{ 
                   position: 'absolute', 
-                  top: '-1.5rem', 
-                  left: '1.5rem', 
+                  top: '-1.6rem', 
+                  left: '1.75rem', 
                   background: '#c9952a', 
                   color: '#0f3a2a', 
-                  width: 44, 
-                  height: 44, 
+                  width: 52, 
+                  height: 52, 
                   borderRadius: '50%', 
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center', 
-                  fontWeight: 700, 
-                  fontSize: '1.1rem', 
-                  border: '3px solid var(--cream)' 
+                  fontWeight: 800, 
+                  fontSize: '1.25rem', 
+                  border: '3.5px solid var(--cream)',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.15)'
                 }}>
                   {s.n}
                 </div>
                 <h3
                   style={{
                     fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: '1.25rem',
+                    fontSize: '1.5rem',
                     color: 'var(--green-dark)',
-                    marginTop: '0.5rem',
-                    marginBottom: '0.6rem',
-                    fontWeight: 600,
+                    marginTop: '0.6rem',
+                    marginBottom: '0.8rem',
+                    fontWeight: 700,
                   }}
                 >
                   {s.t}
                 </h3>
-                <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.65 }}>
+                <p style={{ fontSize: '1rem', color: 'var(--text-muted)', lineHeight: 1.75 }}>
                   {s.d}
                 </p>
               </div>

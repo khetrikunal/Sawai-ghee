@@ -286,17 +286,17 @@ export default function ProductDetailPage() {
       <section
         style={{
           background: '#fdf6e3',
-          padding: '4rem 1.5rem',
+          padding: '5rem 2rem',
         }}
       >
         <div
           className="product-detail-grid"
           style={{
-            maxWidth: 1100,
+            maxWidth: 1320,
             margin: '0 auto',
             display: 'grid',
             gridTemplateColumns: '1fr 1.1fr',
-            gap: '4rem',
+            gap: '5rem',
             alignItems: 'start',
           }}
         >
@@ -310,11 +310,13 @@ export default function ProductDetailPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '3rem',
+                padding: '3.5rem',
                 position: 'relative',
-                minHeight: 420,
+                minHeight: 520,
                 overflow: 'hidden',
-                borderRadius: '20px',
+                borderRadius: '24px',
+                border: '2px solid rgba(201,149,42,0.35)',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.2)',
               }}
             >
               <div
@@ -367,7 +369,7 @@ export default function ProductDetailPage() {
 
             {/* THUMBNAILS GALLERY */}
             {product.images && product.images.length > 1 && (
-              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '1rem' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.5rem' }}>
                 {product.images.map((imgUrl, index) => {
                   const isActive = activeImage === imgUrl || (!activeImage && index === 0);
                   return (
@@ -379,15 +381,15 @@ export default function ProductDetailPage() {
                         setActiveImage(imgUrl);
                       }}
                       style={{
-                        width: 70,
-                        height: 70,
+                        width: 85,
+                        height: 85,
                         objectFit: 'contain',
                         background: '#0f3a2a',
-                        border: isActive ? '2px solid #c9952a' : '1px solid rgba(201, 149, 42, 0.15)',
-                        padding: '4px',
+                        border: isActive ? '2.5px solid #c9952a' : '1px solid rgba(201, 149, 42, 0.25)',
+                        padding: '6px',
                         cursor: 'pointer',
-                        transition: 'border 0.2s',
-                        borderRadius: '6px',
+                        transition: 'all 0.2s',
+                        borderRadius: '10px',
                       }}
                     />
                   )
@@ -405,10 +407,11 @@ export default function ProductDetailPage() {
               style={{
                 fontFamily:
                   "'Cormorant Garamond', serif",
-                fontSize: '2.5rem',
+                fontSize: '3.2rem',
                 color: '#0f3a2a',
-                lineHeight: 1.1,
-                marginBottom: '0.4rem',
+                lineHeight: 1.08,
+                marginBottom: '0.5rem',
+                fontWeight: 700,
               }}
             >
               {product.name}
@@ -417,10 +420,11 @@ export default function ProductDetailPage() {
             <p
               style={{
                 color: '#7a6040',
-                fontSize: '0.82rem',
+                fontSize: '0.95rem',
                 letterSpacing: '2px',
                 textTransform: 'uppercase',
-                marginBottom: '1.5rem',
+                marginBottom: '1.75rem',
+                fontWeight: 600,
               }}
             >
               {currentSize} · A2 Gir Cow Ghee · Vedic Bilona Method
@@ -431,16 +435,17 @@ export default function ProductDetailPage() {
               style={{
                 display: 'flex',
                 alignItems: 'baseline',
-                gap: '1rem',
-                marginBottom: '0.5rem',
+                gap: '1.25rem',
+                marginBottom: '0.75rem',
                 flexWrap: 'wrap',
               }}
             >
               <span
                 style={{
-                  fontSize: '2.2rem',
-                  fontWeight: 700,
+                  fontSize: '2.8rem',
+                  fontWeight: 800,
                   color: '#c9952a',
+                  fontFamily: "'DM Sans', sans-serif",
                 }}
               >
                 ₹{currentPrice?.toLocaleString('en-IN')}
@@ -859,49 +864,53 @@ export default function ProductDetailPage() {
       <style>{`
         .product-main-image{
           width:100%;
-          max-width:280px;
+          max-width:380px;
           object-fit:contain;
           position:relative;
           z-index:2;
-          filter:drop-shadow(0 18px 30px rgba(0,0,0,0.35));
+          filter:drop-shadow(0 25px 45px rgba(0,0,0,0.45));
           animation:float 4s ease-in-out infinite;
         }
 
         .btn-add-cart {
           flex: 1;
-          padding: 14px;
+          padding: 16px 24px;
           background: #0f3a2a;
           color: #f5ead0;
-          border: 1px solid rgba(201, 149, 42, 0.3);
+          border: 1.5px solid rgba(201, 149, 42, 0.4);
           font-weight: 700;
           letter-spacing: 1.5px;
-          font-size: 0.82rem;
+          font-size: 0.95rem;
           cursor: pointer;
           text-transform: uppercase;
-          min-width: 140;
+          min-width: 160px;
+          border-radius: 8px;
           transition: all 0.2s ease-out;
         }
         .btn-add-cart:hover {
           background: #1a5c3e;
           color: #fff;
+          transform: translateY(-1px);
         }
 
         .btn-buy-now {
           flex: 1;
-          padding: 14px;
+          padding: 16px 24px;
           background: #c9952a;
           color: #0f3a2a;
           border: none;
-          font-weight: 700;
+          font-weight: 800;
           letter-spacing: 1.5px;
-          font-size: 0.82rem;
+          font-size: 0.95rem;
           cursor: pointer;
           text-transform: uppercase;
-          min-width: 140;
+          min-width: 160px;
+          border-radius: 8px;
           transition: all 0.2s ease-out;
         }
         .btn-buy-now:hover {
           background: #e4b84a;
+          transform: translateY(-1px);
         }
 
         @keyframes float{
@@ -909,21 +918,21 @@ export default function ProductDetailPage() {
             transform:translateY(0px);
           }
           50%{
-            transform:translateY(-12px);
+            transform:translateY(-14px);
           }
           100%{
             transform:translateY(0px);
           }
         }
 
-        @media(max-width:768px){
+        @media(max-width:960px){
           .product-detail-grid{
             grid-template-columns:1fr !important;
-            gap:2rem !important;
+            gap:3rem !important;
           }
 
           .product-main-image{
-            max-width:220px;
+            max-width:280px;
           }
         }
       `}</style>

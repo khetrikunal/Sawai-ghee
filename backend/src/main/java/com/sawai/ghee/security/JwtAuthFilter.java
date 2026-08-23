@@ -27,7 +27,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(7).trim();
+        if (token.isEmpty() || "null".equalsIgnoreCase(token) || "undefined".equalsIgnoreCase(token)) {
+            chain.doFilter(req, res);
+            return;
+        }
+
         try {
             String email = jwtUtil.extractUsername(token);
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -40,9 +45,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
-            // Invalid/expired JWT -> do NOT authenticate, let Spring return 401/403 for protected endpoints
+            // Invalid or expired JWT -> clear context so Spring Security handles 401/403 appropriately
             SecurityContextHolder.clearContext();
-            // Do not swallow response details here; just continue the filter chain.
         } catch (Exception ignored) {
             SecurityContextHolder.clearContext();
         }
@@ -50,3 +54,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         chain.doFilter(req, res);
     }
 }
+

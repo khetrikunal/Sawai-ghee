@@ -78,17 +78,17 @@ export default function ProductsPage() {
         style={{
           background:
             'linear-gradient(135deg, #0a2819 0%, #0f3a2a 50%, #1a4a2e 100%)',
-          padding: '5rem 1.5rem 4rem',
-          borderBottom: '2px solid #c9952a',
+          padding: '6.5rem 2rem 5.5rem',
+          borderBottom: '2.5px solid #c9952a',
         }}
       >
         <div
           style={{
-            maxWidth: 1200,
+            maxWidth: 1320,
             margin: '0 auto',
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: '3rem',
+            gap: '4rem',
             alignItems: 'center',
           }}
           className="products-hero-grid"
@@ -101,14 +101,16 @@ export default function ProductsPage() {
             <div
               style={{
                 display: 'inline-block',
-                border: '1px solid #c9952a',
+                border: '1.5px solid #c9952a',
                 color: '#e4b84a',
-                padding: '10px 18px',
+                padding: '12px 24px',
                 borderRadius: '50px',
-                fontSize: '0.75rem',
+                fontSize: '0.92rem',
+                fontWeight: 600,
                 letterSpacing: '2px',
-                marginBottom: '1.5rem',
+                marginBottom: '1.75rem',
                 textTransform: 'uppercase',
+                background: 'rgba(15, 58, 42, 0.6)',
               }}
             >
               ✦ Premium Bilona Collection ✦
@@ -120,9 +122,10 @@ export default function ProductsPage() {
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
                 color: '#fdf6e3',
-                fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-                lineHeight: 1.1,
-                marginBottom: '1rem',
+                fontSize: 'clamp(3rem, 5.5vw, 4.8rem)',
+                lineHeight: 1.05,
+                marginBottom: '1.25rem',
+                fontWeight: 700,
               }}
             >
               Our Premium
@@ -132,10 +135,10 @@ export default function ProductsPage() {
 
             <p
               style={{
-                color: 'rgba(255,255,255,0.7)',
-                fontSize: '0.95rem',
-                lineHeight: 1.8,
-                maxWidth: 500,
+                color: 'rgba(255,255,255,0.82)',
+                fontSize: '1.12rem',
+                lineHeight: 1.85,
+                maxWidth: 560,
               }}
             >
               Explore our handcrafted range of pure A2 Gir Cow Ghee,
@@ -158,10 +161,10 @@ export default function ProductsPage() {
             <div
               style={{
                 position: 'absolute',
-                width: 380,
-                height: 380,
+                width: 460,
+                height: 460,
                 background:
-                  'radial-gradient(circle, rgba(201,149,42,0.25) 0%, transparent 70%)',
+                  'radial-gradient(circle, rgba(201,149,42,0.3) 0%, transparent 70%)',
                 borderRadius: '50%',
               }}
             />
@@ -169,7 +172,7 @@ export default function ProductsPage() {
             {/* PRODUCT IMAGE */}
             <img
               src={productImage}
-              alt="Sawai Gir Amrut Ghee"
+              alt="Sawai Gir Amrut Ghee Collection"
               className="hero-product-image"
             />
           </motion.div>
@@ -179,11 +182,11 @@ export default function ProductsPage() {
         <style>{`
           .hero-product-image{
             width:100%;
-            max-width:420px;
+            max-width:500px;
             object-fit:contain;
             position:relative;
             z-index:2;
-            filter:drop-shadow(0 20px 35px rgba(0,0,0,0.35));
+            filter:drop-shadow(0 25px 45px rgba(0,0,0,0.45));
             animation:float 4s ease-in-out infinite;
           }
 
@@ -192,22 +195,23 @@ export default function ProductsPage() {
               transform:translateY(0px);
             }
             50%{
-              transform:translateY(-12px);
+              transform:translateY(-14px);
             }
             100%{
               transform:translateY(0px);
             }
           }
 
-          @media(max-width:768px){
+          @media(max-width:960px){
             .products-hero-grid{
               grid-template-columns:1fr !important;
               text-align:center;
+              gap: 3rem;
             }
 
             .hero-product-image{
-              max-width:260px;
-              margin-top:2rem;
+              max-width:320px;
+              margin-top:1rem;
             }
           }
         `}</style>
@@ -217,21 +221,23 @@ export default function ProductsPage() {
       <section
         style={{
           background: '#fdf6e3',
-          padding: '4rem 1.5rem',
+          padding: '5rem 1.75rem',
         }}
       >
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1320, margin: '0 auto' }}>
           {/* INFO STRIP */}
           <div
             style={{
               background: '#0f3a2a',
-              padding: '1rem 1.5rem',
-              marginBottom: '3rem',
+              padding: '1.25rem 2rem',
+              marginBottom: '3.5rem',
               display: 'flex',
-              gap: '2rem',
+              gap: '2.5rem',
               flexWrap: 'wrap',
               justifyContent: 'center',
-              borderRadius: '12px',
+              borderRadius: '16px',
+              border: '1px solid rgba(201,149,42,0.25)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
             }}
           >
             {[
@@ -245,16 +251,17 @@ export default function ProductsPage() {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem',
+                  gap: '0.65rem',
                 }}
               >
-                <span style={{ color: '#c9952a' }}>✓</span>
+                <span style={{ color: '#e4b84a', fontWeight: 800, fontSize: '1.15rem' }}>✓</span>
 
                 <span
                   style={{
                     color: '#f5ead0',
-                    fontSize: '0.82rem',
+                    fontSize: '0.98rem',
                     letterSpacing: '1px',
+                    fontWeight: 600,
                   }}
                 >
                   {b}
@@ -264,60 +271,66 @@ export default function ProductsPage() {
           </div>
 
           {/* SEARCH BAR */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '3rem' }}>
-            <div style={{ width: '100%', maxWidth: 500, position: 'relative' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '3.5rem' }}>
+            <div style={{ width: '100%', maxWidth: 580, position: 'relative' }}>
               <input
                 type="text"
-                placeholder="Search premium ghee..."
+                placeholder="Search premium ghee packages..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
                   width: '100%',
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  border: '1px solid rgba(201, 149, 42, 0.3)',
-                  padding: '12px 20px 12px 48px',
-                  borderRadius: '30px',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  border: '1.5px solid rgba(201, 149, 42, 0.35)',
+                  padding: '15px 24px 15px 54px',
+                  borderRadius: '35px',
                   fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '0.95rem',
+                  fontSize: '1.05rem',
                   outline: 'none',
                   color: '#0f3a2a',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-                  transition: 'border-color 0.2s',
+                  boxShadow: '0 6px 24px rgba(0, 0, 0, 0.06)',
+                  transition: 'all 0.2s',
                 }}
-                onFocus={(e) => e.target.style.borderColor = '#c9952a'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(201, 149, 42, 0.3)'}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#c9952a'
+                  e.target.style.boxShadow = '0 8px 30px rgba(201,149,42,0.18)'
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'rgba(201, 149, 42, 0.35)'
+                  e.target.style.boxShadow = '0 6px 24px rgba(0, 0, 0, 0.06)'
+                }}
               />
-              <span style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', color: '#c9952a', fontSize: '1.1rem' }}>🔍</span>
+              <span style={{ position: 'absolute', left: 22, top: '50%', transform: 'translateY(-50%)', color: '#c9952a', fontSize: '1.25rem' }}>🔍</span>
             </div>
           </div>
 
           {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem' }}>
               {[1, 2, 3].map((n) => (
-                <div key={n} style={{ background: '#fff', border: '1px solid rgba(201, 149, 42, 0.15)', borderRadius: '18px', padding: '1.5rem', height: 400, display: 'flex', flexDirection: 'column', gap: '1rem', overflow: 'hidden' }}>
-                  <div style={{ height: 220, background: 'rgba(0,0,0,0.03)', borderRadius: '12px', animation: 'pulse 1.5s infinite ease-in-out' }} />
-                  <div style={{ height: 24, width: '70%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
-                  <div style={{ height: 16, width: '40%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+                <div key={n} style={{ background: '#fff', border: '1px solid rgba(201, 149, 42, 0.15)', borderRadius: '20px', padding: '1.75rem', height: 440, display: 'flex', flexDirection: 'column', gap: '1.2rem', overflow: 'hidden' }}>
+                  <div style={{ height: 260, background: 'rgba(0,0,0,0.03)', borderRadius: '14px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+                  <div style={{ height: 28, width: '70%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+                  <div style={{ height: 18, width: '40%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
                   <div style={{ display: 'flex', gap: '10px', marginTop: 'auto' }}>
-                    <div style={{ height: 30, width: '30%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
-                    <div style={{ height: 38, width: '100%', background: 'rgba(0,0,0,0.03)', borderRadius: '10px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+                    <div style={{ height: 34, width: '30%', background: 'rgba(0,0,0,0.03)', borderRadius: '4px', animation: 'pulse 1.5s infinite ease-in-out' }} />
+                    <div style={{ height: 44, width: '100%', background: 'rgba(0,0,0,0.03)', borderRadius: '10px', animation: 'pulse 1.5s infinite ease-in-out' }} />
                   </div>
                 </div>
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem', color: '#0f3a2a' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌾</div>
-              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.8rem', fontWeight: 600 }}>No products found</h3>
-              <p style={{ opacity: 0.7 }}>Try searching for a different term.</p>
+            <div style={{ textAlign: 'center', padding: '4rem 1.5rem', color: '#0f3a2a' }}>
+              <div style={{ fontSize: '3.5rem', marginBottom: '1.25rem' }}>🌾</div>
+              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2.2rem', fontWeight: 700 }}>No products found</h3>
+              <p style={{ opacity: 0.75, fontSize: '1.05rem' }}>Try searching for a different term or browse our full catalogue.</p>
             </div>
           ) : (
             <div
               style={{
                 display: 'grid',
                 gridTemplateColumns:
-                  'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '2rem',
+                  'repeat(auto-fit, minmax(320px, 1fr))',
+                gap: '2.5rem',
               }}
             >
               {products.map((p, i) => (

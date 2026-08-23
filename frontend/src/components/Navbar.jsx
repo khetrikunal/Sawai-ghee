@@ -50,7 +50,7 @@ export default function Navbar() {
           borderBottom: '2px solid rgba(201, 149, 42, 0.4)',
           transition: 'all 0.3s ease',
           boxShadow: scrolled
-            ? '0 4px 24px rgba(0,0,0,0.35)'
+            ? '0 6px 28px rgba(0,0,0,0.4)'
             : 'none',
         }}
       >
@@ -96,11 +96,11 @@ export default function Navbar() {
                   </Link>
                 )}
 
-                <Link to="/my-orders" className="nav-link" style={{ fontSize: '0.78rem' }}>
+                <Link to="/my-orders" className="nav-link" style={{ fontSize: '0.92rem' }}>
                   Orders
                 </Link>
 
-                <Link to="/profile" className="nav-link" style={{ fontSize: '0.78rem' }}>
+                <Link to="/profile" className="nav-link" style={{ fontSize: '0.92rem' }}>
                   {user.name?.split(' ')[0]}
                 </Link>
 
@@ -116,16 +116,16 @@ export default function Navbar() {
               </div>
             ) : (
               <Link to="/login" className="login-link">
-                <FiUser size={16} />
+                <FiUser size={19} />
                 Login
               </Link>
             )}
 
             {/* CART */}
             <Link to="/cart" className="cart-btn">
-              <FiShoppingCart size={16} />
+              <FiShoppingCart size={19} />
 
-              Cart
+              <span>Cart</span>
 
               {cartCount > 0 && (
                 <span className="cart-count">
@@ -138,11 +138,12 @@ export default function Navbar() {
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="mobile-menu-btn"
+              aria-label="Toggle Navigation"
             >
               {menuOpen ? (
-                <FiX size={24} />
+                <FiX size={28} />
               ) : (
-                <FiMenu size={24} />
+                <FiMenu size={28} />
               )}
             </button>
           </div>
@@ -159,7 +160,7 @@ export default function Navbar() {
                 background: '#0a2819',
                 overflow: 'hidden',
                 borderTop:
-                  '1px solid rgba(201,149,42,0.15)',
+                  '1px solid rgba(201,149,42,0.2)',
               }}
             >
               {navLinks.map(({ to, label }) => (
@@ -182,10 +183,10 @@ export default function Navbar() {
 
         /* NAVBAR */
         .navbar-container{
-          max-width:1200px;
+          max-width:1320px;
           margin:0 auto;
-          padding:0 1.2rem;
-          height:72px;
+          padding:0 1.75rem;
+          height:90px;
           display:flex;
           align-items:center;
           justify-content:space-between;
@@ -195,45 +196,52 @@ export default function Navbar() {
         .logo-wrapper{
           display:flex;
           align-items:center;
-          gap:12px;
+          gap:16px;
           text-decoration:none;
           min-width:max-content;
         }
 
         .navbar-logo{
-          width:52px;
-          height:52px;
+          width:68px;
+          height:68px;
           object-fit:cover;
           border-radius:50%;
           background:#fff;
           padding:3px;
-          border:2px solid #c9952a;
-          box-shadow:0 0 14px rgba(201,149,42,0.3);
+          border:2.5px solid #c9952a;
+          box-shadow:0 0 18px rgba(201,149,42,0.35);
           flex-shrink:0;
+          transition: transform 0.2s ease;
+        }
+
+        .logo-wrapper:hover .navbar-logo {
+          transform: scale(1.04);
         }
 
         .brand-title{
           color:#e4b84a;
           font-family:'Cormorant Garamond', serif;
-          font-size:1.3rem;
+          font-size:1.65rem;
           font-weight:700;
-          line-height:1;
+          line-height:1.1;
+          letter-spacing: 0.5px;
         }
 
         .brand-subtitle{
           color:#ede0b8;
-          font-size:0.58rem;
-          letter-spacing:1.8px;
+          font-size:0.75rem;
+          letter-spacing:2px;
           text-transform:uppercase;
           margin-top:4px;
           font-family:'DM Sans', sans-serif;
+          font-weight: 500;
         }
 
         /* NAV LINKS */
         .desktop-nav{
           display:flex;
           align-items:center;
-          gap:1.7rem;
+          gap:2.2rem;
           list-style:none;
           margin:0;
           padding:0;
@@ -242,11 +250,13 @@ export default function Navbar() {
         .nav-link{
           color:#f5ead0;
           text-decoration:none;
-          font-size:0.82rem;
-          letter-spacing:1.3px;
+          font-size:0.98rem;
+          letter-spacing:1.5px;
           text-transform:uppercase;
           transition:0.3s ease;
-          font-weight:500;
+          font-weight:600;
+          position: relative;
+          padding: 6px 0;
         }
 
         .nav-link:hover{
@@ -257,7 +267,7 @@ export default function Navbar() {
         .right-actions{
           display:flex;
           align-items:center;
-          gap:0.9rem;
+          gap:1.2rem;
         }
 
         .login-link{
@@ -265,59 +275,77 @@ export default function Navbar() {
           text-decoration:none;
           display:flex;
           align-items:center;
-          gap:4px;
-          font-size:0.82rem;
+          gap:6px;
+          font-size:0.95rem;
+          font-weight: 600;
+          padding: 8px 14px;
+          border-radius: 6px;
+          transition: background 0.2s;
+        }
+
+        .login-link:hover {
+          background: rgba(228, 184, 74, 0.1);
         }
 
         .cart-btn{
           text-decoration:none;
           background:#c9952a;
           color:#0f3a2a;
-          padding:10px 15px;
-          border-radius:6px;
+          padding:12px 20px;
+          border-radius:8px;
           display:flex;
           align-items:center;
-          gap:6px;
+          gap:8px;
           font-weight:700;
-          font-size:0.8rem;
+          font-size:0.95rem;
+          letter-spacing: 0.5px;
           position:relative;
+          transition: background 0.2s, transform 0.15s;
+        }
+
+        .cart-btn:hover {
+          background: #e4b84a;
+          transform: translateY(-1px);
         }
 
         .cart-count{
-          width:18px;
-          height:18px;
+          width:22px;
+          height:22px;
           border-radius:50%;
           background:#0f3a2a;
           color:#e4b84a;
           display:flex;
           align-items:center;
           justify-content:center;
-          font-size:11px;
+          font-size:12px;
           font-weight:700;
+          margin-left: 2px;
         }
 
         .user-section{
           display:flex;
           align-items:center;
-          gap:0.7rem;
+          gap:1rem;
         }
 
         .user-name{
           color:#f5ead0;
-          font-size:0.82rem;
+          font-size:0.95rem;
         }
 
         .logout-btn{
           background:transparent;
-          border:1px solid rgba(201,149,42,0.4);
+          border:1px solid rgba(201,149,42,0.5);
           color:#c9952a;
-          padding:6px 12px;
+          padding:8px 16px;
+          border-radius: 6px;
           cursor:pointer;
-          font-size:0.75rem;
+          font-size:0.88rem;
+          font-weight: 600;
           transition: all 0.2s ease-out;
         }
         .logout-btn:hover {
-          background: rgba(201,149,42,0.1);
+          background: rgba(201,149,42,0.15);
           border-color: #e4b84a;
           color: #e4b84a;
         }
@@ -325,13 +353,13 @@ export default function Navbar() {
         .admin-link{
           color:#e4b84a;
           text-decoration:none;
-          font-size:0.78rem;
+          font-size:0.88rem;
           font-weight:700;
           letter-spacing:1px;
           text-transform:uppercase;
-          border: 1px solid #e4b84a;
-          padding: 6px 12px;
-          border-radius: 4px;
+          border: 1.5px solid #e4b84a;
+          padding: 8px 16px;
+          border-radius: 6px;
           transition: all 0.2s ease-out;
         }
         .admin-link:hover {
@@ -346,23 +374,42 @@ export default function Navbar() {
           border:none;
           color:#e4b84a;
           cursor:pointer;
+          padding: 4px;
         }
 
         .mobile-nav-link{
           display:block;
-          padding:1rem 1.5rem;
+          padding:1.2rem 1.75rem;
           color:#f5ead0;
           text-decoration:none;
-          border-bottom:1px solid rgba(255,255,255,0.05);
-          font-size:0.9rem;
+          border-bottom:1px solid rgba(255,255,255,0.08);
+          font-size:1.05rem;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+        }
+        .mobile-nav-link:hover {
+          background: rgba(228, 184, 74, 0.1);
+          color: #e4b84a;
         }
 
         /* RESPONSIVE */
-        @media(max-width:768px){
+        @media(max-width:960px){
+          .desktop-nav{
+            gap:1.2rem;
+          }
+          .brand-title{
+            font-size:1.4rem;
+          }
+          .navbar-logo{
+            width:58px;
+            height:58px;
+          }
+        }
 
+        @media(max-width:820px){
           .navbar-container{
-            height:68px;
-            padding:0 1rem;
+            height:78px;
+            padding:0 1.2rem;
           }
 
           .desktop-nav{
@@ -371,20 +418,22 @@ export default function Navbar() {
 
           .mobile-menu-btn{
             display:flex;
+            align-items:center;
+            justify-content:center;
           }
 
           .navbar-logo{
-            width:44px;
-            height:44px;
+            width:52px;
+            height:52px;
           }
 
           .brand-title{
-            font-size:1rem;
+            font-size:1.25rem;
           }
 
           .brand-subtitle{
-            font-size:0.48rem;
-            letter-spacing:1.2px;
+            font-size:0.6rem;
+            letter-spacing:1.4px;
           }
 
           .login-link{
@@ -392,8 +441,8 @@ export default function Navbar() {
           }
 
           .cart-btn{
-            padding:8px 12px;
-            font-size:0.72rem;
+            padding:9px 15px;
+            font-size:0.85rem;
           }
 
           .user-name{
@@ -403,10 +452,9 @@ export default function Navbar() {
           .logout-btn{
             display:none;
           }
-
         }
 
       `}</style>
     </>
   )
-}
+}

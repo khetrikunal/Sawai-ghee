@@ -28,20 +28,20 @@ export default function ProductCard({ product, dark = true }) {
     toast.success(`${firstVariant ? firstVariant.size : product.size} added to cart!`)
   }
 
-  const bg = dark ? 'rgba(15, 58, 42, 0.75)' : 'rgba(255, 255, 255, 0.9)'
+  const bg = dark ? 'rgba(15, 58, 42, 0.75)' : 'rgba(255, 255, 255, 0.95)'
   const border = dark
-    ? '1px solid rgba(201, 149, 42, 0.3)'
-    : '1px solid rgba(201, 149, 42, 0.15)'
+    ? '1px solid rgba(201, 149, 42, 0.35)'
+    : '1px solid rgba(201, 149, 42, 0.22)'
 
   const nameColor = dark ? '#fdf6e3' : '#0f3a2a'
   const subColor = dark
-    ? 'rgba(245, 234, 208, 0.8)'
+    ? 'rgba(245, 234, 208, 0.85)'
     : '#4a3820'
 
   return (
     <motion.div
       className="product-card"
-      whileHover={{ y: -6 }}
+      whileHover={{ y: -8 }}
       onClick={() => navigate(`/products/${product.id}`)}
       style={{
         background: bg,
@@ -51,13 +51,14 @@ export default function ProductCard({ product, dark = true }) {
         overflow: 'hidden',
         cursor: 'pointer',
         position: 'relative',
-        borderRadius: '18px',
+        borderRadius: '20px',
+        boxShadow: dark ? '0 12px 36px rgba(0,0,0,0.3)' : '0 12px 36px rgba(74, 56, 32, 0.08)',
       }}
     >
       {/* IMAGE AREA */}
       <div
         style={{
-          height: 220,
+          height: 280,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -66,7 +67,7 @@ export default function ProductCard({ product, dark = true }) {
             : '#f5ead0',
           position: 'relative',
           overflow: 'hidden',
-          padding: '1rem',
+          padding: '1.25rem',
         }}
       >
         {/* GLOW */}
@@ -75,7 +76,7 @@ export default function ProductCard({ product, dark = true }) {
             position: 'absolute',
             inset: 0,
             background:
-              'radial-gradient(circle at center, rgba(201,149,42,0.15), transparent 70%)',
+              'radial-gradient(circle at center, rgba(201,149,42,0.2), transparent 70%)',
           }}
         />
 
@@ -84,15 +85,17 @@ export default function ProductCard({ product, dark = true }) {
           <div
             style={{
               position: 'absolute',
-              top: 12,
-              right: 12,
+              top: 14,
+              right: 14,
               background: '#c9952a',
               color: '#0f3a2a',
-              fontSize: '0.65rem',
-              fontWeight: 700,
-              padding: '4px 10px',
+              fontSize: '0.8rem',
+              fontWeight: 800,
+              padding: '6px 14px',
+              borderRadius: '20px',
               letterSpacing: '1px',
               zIndex: 2,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             }}
           >
             {product.badge}
@@ -125,13 +128,15 @@ export default function ProductCard({ product, dark = true }) {
       </div>
 
       {/* BODY */}
-      <div style={{ padding: '1.25rem 1.5rem' }}>
+      <div style={{ padding: '1.6rem 1.8rem' }}>
         <div
           style={{
             fontFamily: "'Cormorant Garamond', serif",
-            fontSize: '1.35rem',
+            fontSize: '1.65rem',
             color: nameColor,
-            marginBottom: '0.25rem',
+            marginBottom: '0.35rem',
+            fontWeight: 700,
+            lineHeight: 1.2,
           }}
         >
           {product.name}
@@ -139,11 +144,12 @@ export default function ProductCard({ product, dark = true }) {
 
         <div
           style={{
-            fontSize: '0.72rem',
+            fontSize: '0.88rem',
             color: subColor,
-            letterSpacing: '1px',
+            letterSpacing: '1.2px',
             textTransform: 'uppercase',
-            marginBottom: '1rem',
+            marginBottom: '1.25rem',
+            fontWeight: 600,
           }}
         >
           {product.size} · A2 Gir · Bilona
@@ -154,16 +160,17 @@ export default function ProductCard({ product, dark = true }) {
           style={{
             display: 'flex',
             alignItems: 'baseline',
-            gap: '0.75rem',
-            marginBottom: '1.25rem',
+            gap: '0.85rem',
+            marginBottom: '1.5rem',
             flexWrap: 'wrap',
           }}
         >
           <span
             style={{
-              fontSize: '1.55rem',
-              fontWeight: 700,
+              fontSize: '1.85rem',
+              fontWeight: 800,
               color: '#e4b84a',
+              fontFamily: "'DM Sans', sans-serif",
             }}
           >
             ₹{product.price?.toLocaleString('en-IN')}
@@ -172,9 +179,9 @@ export default function ProductCard({ product, dark = true }) {
           {product.originalPrice && (
             <span
               style={{
-                fontSize: '0.85rem',
+                fontSize: '1.05rem',
                 color: dark
-                  ? 'rgba(255,255,255,0.3)'
+                  ? 'rgba(255,255,255,0.4)'
                   : '#aba090',
                 textDecoration: 'line-through',
               }}
@@ -186,9 +193,12 @@ export default function ProductCard({ product, dark = true }) {
           {product.discount && (
             <span
               style={{
-                fontSize: '0.72rem',
+                fontSize: '0.85rem',
                 color: '#4caf50',
-                fontWeight: 600,
+                fontWeight: 700,
+                background: 'rgba(76, 175, 80, 0.12)',
+                padding: '2px 8px',
+                borderRadius: '4px',
               }}
             >
               {product.discount}% OFF
@@ -204,22 +214,24 @@ export default function ProductCard({ product, dark = true }) {
             background: '#c9952a',
             color: '#0f3a2a',
             border: 'none',
-            padding: '11px',
+            padding: '14px',
             fontWeight: 700,
             letterSpacing: '1.5px',
-            fontSize: '0.78rem',
+            fontSize: '0.92rem',
             cursor: 'pointer',
             fontFamily: "'DM Sans', sans-serif",
             textTransform: 'uppercase',
-            transition: 'background 0.2s',
+            transition: 'all 0.2s',
             borderRadius: '10px',
           }}
-          onMouseEnter={(e) =>
-            (e.target.style.background = '#e4b84a')
-          }
-          onMouseLeave={(e) =>
-            (e.target.style.background = '#c9952a')
-          }
+          onMouseEnter={(e) => {
+            e.target.style.background = '#e4b84a'
+            e.target.style.transform = 'translateY(-1px)'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = '#c9952a'
+            e.target.style.transform = 'translateY(0px)'
+          }}
         >
           Add to Cart
         </button>
@@ -229,13 +241,17 @@ export default function ProductCard({ product, dark = true }) {
       <style>{`
         .product-image{
           width:100%;
-          max-width:160px;
+          max-width:220px;
           object-fit:contain;
           position:relative;
           z-index:1;
-          filter:drop-shadow(0 12px 24px rgba(0,0,0,0.2));
+          filter:drop-shadow(0 16px 28px rgba(0,0,0,0.22));
+          transition: transform 0.3s ease;
+        }
+        .product-card:hover .product-image {
+          transform: scale(1.05);
         }
       `}</style>
     </motion.div>
   )
-}
+}
