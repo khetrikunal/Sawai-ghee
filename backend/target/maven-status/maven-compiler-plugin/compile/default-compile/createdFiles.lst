@@ -14,6 +14,7 @@ com\sawai\ghee\security\SecurityConfig.class
 com\sawai\ghee\model\ProductImage$ProductImageBuilder.class
 com\sawai\ghee\dto\AuthResponse.class
 com\sawai\ghee\model\Order$OrderStatus.class
+com\sawai\ghee\dto\ContactRequest.class
 com\sawai\ghee\controller\UploadController.class
 com\sawai\ghee\model\Review.class
 com\sawai\ghee\exception\GlobalExceptionHandler.class
@@ -48,6 +49,7 @@ com\sawai\ghee\service\CouponService.class
 com\sawai\ghee\model\OrderItem$OrderItemBuilder.class
 com\sawai\ghee\config\WebMvcConfig.class
 com\sawai\ghee\model\ReturnRequest.class
+com\sawai\ghee\controller\ContactController.class
 com\sawai\ghee\dto\OrderStatusRequest.class
 com\sawai\ghee\model\ReturnRequest$ReturnRequestBuilder.class
 com\sawai\ghee\model\Product$ProductBuilder.class

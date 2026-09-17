@@ -85,6 +85,19 @@ export default function MyOrdersPage() {
     }
   }
 
+  const handleDownloadInvoice = async (orderId) => {
+    try {
+      toast.loading('Opening invoice...', { id: 'invoice-toast' })
+      const res = await orderAPI.getInvoice(orderId)
+      const blob = new Blob([res.data], { type: 'text/html' })
+      const blobUrl = window.URL.createObjectURL(blob)
+      window.open(blobUrl, '_blank')
+      toast.success('Invoice opened!', { id: 'invoice-toast' })
+    } catch {
+      toast.error('Could not load invoice', { id: 'invoice-toast' })
+    }
+  }
+
   if (!token) {
     return (
       <div style={{ background: '#f5ead0', minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -165,16 +178,14 @@ export default function MyOrdersPage() {
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       {/* INVOICE BUTTON */}
-                      <a
-                        href={orderAPI.getInvoiceUrl(order.id)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ background: 'transparent', border: '1px solid #c9952a', color: '#c9952a', padding: '6px 16px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none', fontFamily: "'DM Sans', sans-serif", transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                      <button
+                        onClick={() => handleDownloadInvoice(order.id)}
+                        style={{ background: 'transparent', border: '1px solid #c9952a', color: '#c9952a', padding: '6px 16px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                         onMouseEnter={e => { e.target.style.background = '#c9952a'; e.target.style.color = '#0f3a2a' }}
                         onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.color = '#c9952a' }}
                       >
                         Invoice
-                      </a>
+                      </button>
 
                       {/* TRACKING BUTTON */}
                       {['PROCESSING', 'SHIPPED', 'DELIVERED'].includes(order.status) && (

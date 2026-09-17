@@ -31,6 +31,24 @@ public class OrderController {
     private final com.sawai.ghee.repository.ReturnRequestRepository returnRequestRepository;
     private final com.sawai.ghee.service.CouponService couponService;
     private final com.sawai.ghee.service.EmailService emailService;
+    private final com.sawai.ghee.service.InventoryService inventoryService;
+
+    private boolean isAuthorizedForOrder(Order order, UserDetails principal) {
+        if (principal == null || order == null) {
+            return false;
+        }
+        User currentUser = userRepository.findByEmail(principal.getUsername()).orElse(null);
+        if (currentUser == null) {
+            return false;
+        }
+        if (currentUser.getRole() == User.Role.ADMIN) {
+            return true;
+        }
+        if (order.getUser() == null) {
+            return false;
+        }
+        return order.getUser().getId().equals(currentUser.getId());
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<OrderDto>> createOrder(
@@ -62,6 +80,14 @@ public class OrderController {
         // Verify total matches calculated amount
         if (req.getTotal() == null || req.getTotal().subtract(calculatedTotal).abs().compareTo(new BigDecimal("1.0")) > 0) {
             return ResponseEntity.badRequest().body(ApiResponse.error("Order verification failed: Price tempering or mismatch detected. Calculated: " + calculatedTotal));
+        }
+
+        // Atomic coupon reservation (Major fix: Coupon race condition)
+        if (req.getCouponCode() != null && !req.getCouponCode().isBlank()) {
+            boolean couponOk = couponService.incrementUsageIfEligible(req.getCouponCode());
+            if (!couponOk) {
+                return ResponseEntity.badRequest().body(ApiResponse.error("Coupon is invalid, expired, or has reached its usage limit."));
+            }
         }
 
         String orderId = "SWI" + System.currentTimeMillis() + String.format("%04x", new java.security.SecureRandom().nextInt(0xFFFF));
@@ -96,11 +122,6 @@ public class OrderController {
 
         Order saved = orderService.processOrder(order, items);
 
-        // Increment coupon usage count upon successful creation
-        if (req.getCouponCode() != null && !req.getCouponCode().isBlank()) {
-            couponService.incrementUsage(req.getCouponCode());
-        }
-
         return ResponseEntity.ok(ApiResponse.ok("Order created", toDto(saved)));
     }
 
@@ -123,10 +144,18 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDto> getOrder(@PathVariable String id) {
-        return orderService.findOrderById(id)
-                .map(o -> ResponseEntity.ok(toDto(o)))
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> getOrder(
+            @PathVariable String id,
+            @AuthenticationPrincipal UserDetails principal) {
+        Order order = orderService.findOrderById(id).orElse(null);
+        if (order == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!isAuthorizedForOrder(order, principal)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Access denied: You do not have permission to view this order."));
+        }
+        return ResponseEntity.ok(toDto(order));
     }
 
     @GetMapping("/all")
@@ -150,7 +179,18 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OrderDto> updateStatus(@PathVariable String id, @RequestBody OrderStatusRequest req) {
         return orderRepository.findById(id).map(o -> {
-            o.setStatus(Order.OrderStatus.valueOf(req.getStatus()));
+            Order.OrderStatus newStatus = Order.OrderStatus.valueOf(req.getStatus());
+            // Stock restoration fix: restore stock when an order is cancelled
+            if (newStatus == Order.OrderStatus.CANCELLED && o.getStatus() != Order.OrderStatus.CANCELLED) {
+                if (o.getItems() != null) {
+                    for (OrderItem item : o.getItems()) {
+                        if (item.getProductVariant() != null) {
+                            inventoryService.restoreStock(item.getProductVariant().getId(), item.getQuantity());
+                        }
+                    }
+                }
+            }
+            o.setStatus(newStatus);
             Order saved = orderRepository.save(o);
             // Send status update email alert
             emailService.sendOrderStatusUpdate(saved);
@@ -211,12 +251,31 @@ public class OrderController {
     }
 
     @GetMapping("/{id}/invoice")
-    public ResponseEntity<String> getInvoice(@PathVariable String id) {
+    public ResponseEntity<String> getInvoice(
+            @PathVariable String id,
+            @AuthenticationPrincipal UserDetails principal) {
         Order order = orderService.findOrderById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
 
+        if (!isAuthorizedForOrder(order, principal)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN)
+                    .header("Content-Type", "text/plain")
+                    .body("Access denied: You do not have permission to view this invoice.");
+        }
+
+        // HTML escaping of all user-supplied and customer-facing fields (Major security fix: XSS Prevention)
+        String safeOrderId = org.springframework.web.util.HtmlUtils.htmlEscape(order.getId() != null ? order.getId() : "");
+        String safeCustomerName = org.springframework.web.util.HtmlUtils.htmlEscape(order.getCustomerName() != null ? order.getCustomerName() : "");
+        String safeCustomerPhone = org.springframework.web.util.HtmlUtils.htmlEscape(order.getCustomerPhone() != null ? order.getCustomerPhone() : "");
+        String safeAddressLine = org.springframework.web.util.HtmlUtils.htmlEscape(order.getAddressLine() != null ? order.getAddressLine() : "");
+        String safeCity = org.springframework.web.util.HtmlUtils.htmlEscape(order.getCity() != null ? order.getCity() : "");
+        String safeState = org.springframework.web.util.HtmlUtils.htmlEscape(order.getState() != null ? order.getState() : "");
+        String safePinCode = org.springframework.web.util.HtmlUtils.htmlEscape(order.getPinCode() != null ? order.getPinCode() : "");
+        String safeLandmark = org.springframework.web.util.HtmlUtils.htmlEscape(order.getLandmark() != null ? order.getLandmark() : "");
+        String safeCouponCode = org.springframework.web.util.HtmlUtils.htmlEscape(order.getCouponCode() != null ? order.getCouponCode() : "Coupon");
+
         StringBuilder html = new StringBuilder();
-        html.append("<!DOCTYPE html><html><head><title>Invoice - ").append(order.getId()).append("</title>");
+        html.append("<!DOCTYPE html><html><head><title>Invoice - ").append(safeOrderId).append("</title>");
         html.append("<style>");
         html.append("body { font-family: 'DM Sans', sans-serif; color: #333; margin: 40px; }");
         html.append(".invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); font-size: 16px; line-height: 24px; }");
@@ -236,13 +295,16 @@ public class OrderController {
 
         // Header
         html.append("<tr class='top'><td colspan='2'><table><tr><td class='title'>Sawai Ghee</td>");
-        html.append("<td>Invoice #: ").append(order.getId()).append("<br>Created: ").append(order.getCreatedAt() != null ? order.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE) : "N/A").append("</td></tr></table></td></tr>");
+        html.append("<td>Invoice #: ").append(safeOrderId).append("<br>Created: ").append(order.getCreatedAt() != null ? order.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE) : "N/A").append("</td></tr></table></td></tr>");
 
         // Info
         html.append("<tr class='information'><td colspan='2'><table><tr><td>");
         html.append("Sawai Gir Amrut Ghee Inc.<br>123 Farm House Road<br>Pune, MH - 411001<br>GSTIN: 27AAAAA1111A1Z1");
         html.append("</td><td>");
-        html.append(order.getCustomerName()).append("<br>").append(order.getAddressLine()).append("<br>").append(order.getCity()).append(" - ").append(order.getPinCode()).append("<br>").append(order.getCustomerPhone());
+        html.append(safeCustomerName).append("<br>").append(safeAddressLine).append("<br>").append(safeCity);
+        if (!safeState.isBlank()) html.append(", ").append(safeState);
+        html.append(" - ").append(safePinCode).append("<br>").append(safeCustomerPhone);
+        if (!safeLandmark.isBlank()) html.append("<br>Landmark: ").append(safeLandmark);
         html.append("</td></tr></table></td></tr>");
 
         // Heading
@@ -251,8 +313,12 @@ public class OrderController {
         // Items
         if (order.getItems() != null) {
             for (OrderItem item : order.getItems()) {
-                String sizeStr = item.getProductVariant() != null ? " (" + item.getProductVariant().getSize() + ")" : "";
-                String nameStr = item.getProductVariant() != null ? item.getProductVariant().getProduct().getName() : "Product";
+                String sizeStr = (item.getProductVariant() != null && item.getProductVariant().getSize() != null)
+                        ? " (" + org.springframework.web.util.HtmlUtils.htmlEscape(item.getProductVariant().getSize()) + ")"
+                        : "";
+                String nameStr = (item.getProductVariant() != null && item.getProductVariant().getProduct() != null && item.getProductVariant().getProduct().getName() != null)
+                        ? org.springframework.web.util.HtmlUtils.htmlEscape(item.getProductVariant().getProduct().getName())
+                        : "Product";
                 html.append("<tr class='item'><td>")
                         .append(nameStr).append(sizeStr).append(" x ").append(item.getQuantity())
                         .append("</td><td>₹")
@@ -271,7 +337,7 @@ public class OrderController {
 
         html.append("<tr class='item'><td>Subtotal</td><td>₹").append(subtotal).append("</td></tr>");
         if (order.getDiscount().compareTo(BigDecimal.ZERO) > 0) {
-            html.append("<tr class='item'><td>Discount (").append(order.getCouponCode() != null ? order.getCouponCode() : "Coupon").append(")</td><td>-₹").append(order.getDiscount()).append("</td></tr>");
+            html.append("<tr class='item'><td>Discount (").append(safeCouponCode).append(")</td><td>-₹").append(order.getDiscount()).append("</td></tr>");
         }
         html.append("<tr class='item'><td>Shipping</td><td>₹").append(order.getShipping()).append("</td></tr>");
         html.append("<tr class='total'><td></td><td>Total: ₹").append(order.getTotal()).append("</td></tr>");
@@ -284,9 +350,16 @@ public class OrderController {
     }
 
     @GetMapping("/{id}/track")
-    public ResponseEntity<?> trackOrder(@PathVariable String id) {
+    public ResponseEntity<?> trackOrder(
+            @PathVariable String id,
+            @AuthenticationPrincipal UserDetails principal) {
         Order order = orderService.findOrderById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
+
+        if (!isAuthorizedForOrder(order, principal)) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Access denied: You do not have permission to view tracking for this order."));
+        }
 
         String carrier = "Delhivery";
         String trackingNumber = "DEL" + Math.abs(id.hashCode()) + "IN";

@@ -81,6 +81,25 @@ public class EmailService {
         }
     }
 
+    public void sendContactMessage(String name, String email, String phone, String message) {
+        try {
+            SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setFrom(from);
+            msg.setTo("admin@sawaighee.com");
+            msg.setSubject("New Customer Inquiry from " + name);
+            msg.setText(
+                "New contact inquiry received:\n\n" +
+                "Name: " + name + "\n" +
+                "Email: " + email + "\n" +
+                "Phone: " + (phone != null && !phone.isBlank() ? phone : "Not provided") + "\n\n" +
+                "Message:\n" + message
+            );
+            mailSender.send(msg);
+        } catch (Exception e) {
+            System.err.println("Contact email failed: " + e.getMessage());
+        }
+    }
+
     private String buildOrderHtml(Order order) {
         StringBuilder itemsTable = new StringBuilder();
         BigDecimal subtotal = BigDecimal.ZERO;

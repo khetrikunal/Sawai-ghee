@@ -378,12 +378,9 @@ export function AdminProducts() {
         setTotalPages(r.data.totalPages || 0)
         setTotalElements(r.data.totalElements || 0)
       })
-      .catch(() => {
-        setProducts([
-          { id: 1, name: 'Sawai Gir Amrut Ghee', size: '500 ml', price: 699, originalPrice: 849, discount: 18, stock: 50, badge: 'BESTSELLER', active: true },
-          { id: 2, name: 'Sawai Gir Amrut Ghee', size: '1 Litre', price: 1299, originalPrice: 1549, discount: 16, stock: 30, badge: 'POPULAR', active: true },
-          { id: 3, name: 'Sawai Gir Amrut Ghee', size: '5 Litre', price: 5799, originalPrice: 7200, discount: 19, stock: 15, badge: 'BEST VALUE', active: true },
-        ])
+      .catch((err) => {
+        setProducts([])
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to load products')
       })
   }
 
@@ -396,12 +393,20 @@ export function AdminProducts() {
       else await productAPI.create(form)
       toast.success(editing ? 'Product updated!' : 'Product created!')
       setShowForm(false); setEditing(null); load()
-    } catch { toast.success('Saved (demo mode)'); setShowForm(false); setEditing(null) }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to save product')
+    }
   }
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this product?')) return
-    try { await productAPI.delete(id); toast.success('Deleted!'); load() } catch { toast.success('Deleted (demo)') }
+    try {
+      await productAPI.delete(id)
+      toast.success('Deleted!')
+      load()
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to delete product')
+    }
   }
 
   // Image Upload handler
@@ -430,8 +435,8 @@ export function AdminProducts() {
       await productAPI.updateStock(id, currentStock + amt)
       toast.success('Stock updated!')
       load()
-    } catch {
-      toast.success('Stock updated (demo)')
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to update stock')
     }
   }
 
@@ -499,36 +504,40 @@ export function AdminProducts() {
         )}
 
         <div style={{ background: '#0f3a2a', border: '1px solid rgba(201,149,42,0.15)', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.15)', marginBottom: '1.5rem' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid rgba(201,149,42,0.2)', background: 'rgba(7, 31, 18, 0.4)' }}>
-                {['Product', 'Size', 'Price', 'Stock', 'Badge', 'Status', 'Actions'].map(h => (
-                  <th key={h} style={{ padding: '1rem 1.25rem', textAlign: 'left', color: '#e4b84a', fontSize: '0.72rem', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {products.map(p => (
-                <tr key={p.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', transition: 'background 0.2s' }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-                  <td style={{ padding: '1rem 1.25rem', color: '#fdf6e3', fontSize: '0.88rem', fontWeight: 500 }}>{p.name}</td>
-                  <td style={{ padding: '1rem 1.25rem', color: 'rgba(253, 246, 227, 0.65)', fontSize: '0.85rem' }}>{p.size}</td>
-                  <td style={{ padding: '1rem 1.25rem', color: '#c9952a', fontWeight: 700, fontSize: '0.9rem' }}>₹{p.price?.toLocaleString('en-IN')}</td>
-                  <td style={{ padding: '1rem 1.25rem', color: p.stock < 10 ? '#ef4444' : 'rgba(253, 246, 227, 0.65)', fontSize: '0.85rem', fontWeight: p.stock < 10 ? 'bold' : 'normal' }}>
-                    {p.stock} {p.stock < 10 && <span style={{ background: '#7f1d1d', color: '#fca5a5', padding: '2px 6px', fontSize: '0.65rem', borderRadius: '3px', marginLeft: 8, textTransform: 'uppercase', fontWeight: 'bold' }}>Low</span>}
-                  </td>
-                  <td style={{ padding: '1rem 1.25rem' }}>{p.badge && <span style={{ background: 'rgba(201,149,42,0.15)', color: '#e4b84a', border: '1px solid rgba(201,149,42,0.3)', borderRadius: '3px', fontSize: '0.65rem', padding: '3px 8px', fontWeight: 700, letterSpacing: '0.5px' }}>{p.badge}</span>}</td>
-                  <td style={{ padding: '1rem 1.25rem' }}><span style={{ color: p.active ? '#16a34a' : '#dc2626', fontSize: '0.8rem', fontWeight: 600 }}>{p.active ? '● Active' : '● Inactive'}</span></td>
-                  <td style={{ padding: '1rem 1.25rem', display: 'flex', gap: '0.5rem' }}>
-                    <button onClick={() => { setEditing(p.id); setForm({ ...p }); setShowForm(true) }} style={{ background: '#1a5c3e', color: '#fdf6e3', border: 'none', padding: '6px 14px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, fontFamily: "'DM Sans', sans-serif", transition: 'background 0.2s' }}>Edit</button>
-                    <button onClick={() => handleRestock(p.id, p.stock)} style={{ background: '#c9952a', color: '#0f3a2a', border: 'none', padding: '6px 14px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", transition: 'background 0.2s' }}>Restock</button>
-                    <button onClick={() => handleDelete(p.id)} style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, fontFamily: "'DM Sans', sans-serif", transition: 'background 0.2s' }}>Delete</button>
-                  </td>
+          {products.length === 0 ? (
+            <div style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', padding: '3rem' }}>No products found.</div>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(201,149,42,0.2)', background: 'rgba(7, 31, 18, 0.4)' }}>
+                  {['Product', 'Size', 'Price', 'Stock', 'Badge', 'Status', 'Actions'].map(h => (
+                    <th key={h} style={{ padding: '1rem 1.25rem', textAlign: 'left', color: '#e4b84a', fontSize: '0.72rem', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {products.map(p => (
+                  <tr key={p.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', transition: 'background 0.2s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                    <td style={{ padding: '1rem 1.25rem', color: '#fdf6e3', fontSize: '0.88rem', fontWeight: 500 }}>{p.name}</td>
+                    <td style={{ padding: '1rem 1.25rem', color: 'rgba(253, 246, 227, 0.65)', fontSize: '0.85rem' }}>{p.size}</td>
+                    <td style={{ padding: '1rem 1.25rem', color: '#c9952a', fontWeight: 700, fontSize: '0.9rem' }}>₹{p.price?.toLocaleString('en-IN')}</td>
+                    <td style={{ padding: '1rem 1.25rem', color: p.stock < 10 ? '#ef4444' : 'rgba(253, 246, 227, 0.65)', fontSize: '0.85rem', fontWeight: p.stock < 10 ? 'bold' : 'normal' }}>
+                      {p.stock} {p.stock < 10 && <span style={{ background: '#7f1d1d', color: '#fca5a5', padding: '2px 6px', fontSize: '0.65rem', borderRadius: '3px', marginLeft: 8, textTransform: 'uppercase', fontWeight: 'bold' }}>Low</span>}
+                    </td>
+                    <td style={{ padding: '1rem 1.25rem' }}>{p.badge && <span style={{ background: 'rgba(201,149,42,0.15)', color: '#e4b84a', border: '1px solid rgba(201,149,42,0.3)', borderRadius: '3px', fontSize: '0.65rem', padding: '3px 8px', fontWeight: 700, letterSpacing: '0.5px' }}>{p.badge}</span>}</td>
+                    <td style={{ padding: '1rem 1.25rem' }}><span style={{ color: p.active ? '#16a34a' : '#dc2626', fontSize: '0.8rem', fontWeight: 600 }}>{p.active ? '● Active' : '● Inactive'}</span></td>
+                    <td style={{ padding: '1rem 1.25rem', display: 'flex', gap: '0.5rem' }}>
+                      <button onClick={() => { setEditing(p.id); setForm({ ...p }); setShowForm(true) }} style={{ background: '#1a5c3e', color: '#fdf6e3', border: 'none', padding: '6px 14px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, fontFamily: "'DM Sans', sans-serif", transition: 'background 0.2s' }}>Edit</button>
+                      <button onClick={() => handleRestock(p.id, p.stock)} style={{ background: '#c9952a', color: '#0f3a2a', border: 'none', padding: '6px 14px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", transition: 'background 0.2s' }}>Restock</button>
+                      <button onClick={() => handleDelete(p.id)} style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, fontFamily: "'DM Sans', sans-serif", transition: 'background 0.2s' }}>Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* PAGINATION CONTROLS */}
@@ -555,11 +564,10 @@ export function AdminOrders() {
         setOrders(r.data.content || [])
         setTotalPages(r.data.totalPages || 0)
       })
-      .catch(() => setOrders([
-        { id: 'SWI001', customerName: 'Priya Sharma', total: 1299, status: 'DELIVERED', createdAt: '2025-05-01T12:00:00Z', items: [{ size: '1L', qty: 1 }] },
-        { id: 'SWI002', customerName: 'Ramesh Patil', total: 5799, status: 'PROCESSING', createdAt: '2025-05-03T15:30:00Z', items: [{ size: '5L', qty: 1 }] },
-        { id: 'SWI003', customerName: 'Suresh Mehta', total: 2598, status: 'SHIPPED', createdAt: '2025-05-04T10:15:00Z', items: [{ size: '1L', qty: 2 }] },
-      ]))
+      .catch((err) => {
+        setOrders([])
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to load orders')
+      })
   }, [page])
 
   const STATUS_COLORS = { PENDING: '#d97706', PROCESSING: '#2563eb', SHIPPED: '#7c3aed', DELIVERED: '#16a34a', CANCELLED: '#dc2626' }
@@ -568,10 +576,10 @@ export function AdminOrders() {
     try { 
       await orderAPI.updateStatus(id, status)
       toast.success('Status updated & Email confirmation sent!') 
-    } catch { 
-      toast.success('Updated (demo)') 
+      setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o))
+    } catch (err) { 
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to update order status') 
     }
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o))
   }
 
   return (
@@ -580,38 +588,42 @@ export function AdminOrders() {
       <div style={ADMIN_STYLE.main}>
         <h1 style={{ fontFamily: "'Cormorant Garamond', serif", color: '#e4b84a', fontSize: '2.5rem', marginBottom: '2.5rem', fontWeight: 700 }}>Orders</h1>
         <div style={{ background: '#0f3a2a', border: '1px solid rgba(201,149,42,0.15)', borderRadius: '8px', overflow: 'auto', boxShadow: '0 8px 30px rgba(0,0,0,0.15)', marginBottom: '1.5rem' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid rgba(201,149,42,0.2)', background: 'rgba(7, 31, 18, 0.4)' }}>
-                {['Order ID', 'Customer', 'Total', 'Date', 'Status', 'Update Status'].map(h => (
-                  <th key={h} style={{ padding: '1rem 1.25rem', textAlign: 'left', color: '#e4b84a', fontSize: '0.72rem', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map(o => (
-                <tr key={o.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', transition: 'background 0.2s' }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-                  <td style={{ padding: '1rem 1.25rem', color: '#e4b84a', fontSize: '0.85rem', fontFamily: 'monospace', fontWeight: 600 }}>{o.id}</td>
-                  <td style={{ padding: '1rem 1.25rem', color: '#fdf6e3', fontSize: '0.88rem', fontWeight: 500 }}>{o.customerName || o.user?.name || 'Guest'}</td>
-                  <td style={{ padding: '1rem 1.25rem', color: '#c9952a', fontWeight: 700, fontSize: '0.9rem' }}>₹{o.total?.toLocaleString('en-IN')}</td>
-                  <td style={{ padding: '1rem 1.25rem', color: 'rgba(253, 246, 227, 0.65)', fontSize: '0.82rem' }}>{new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
-                  <td style={{ padding: '1rem 1.25rem' }}>
-                    <span style={{ background: STATUS_COLORS[o.status] || '#666', color: '#fff', fontSize: '0.7rem', padding: '4px 10px', fontWeight: 700, borderRadius: '4px', letterSpacing: '0.5px' }}>{o.status}</span>
-                  </td>
-                  <td style={{ padding: '1rem 1.25rem' }}>
-                    <select value={o.status} onChange={e => updateStatus(o.id, e.target.value)}
-                      style={{ background: '#1a5c3e', color: '#fdf6e3', border: '1px solid rgba(201,149,42,0.3)', padding: '6px 12px', borderRadius: '4px', fontSize: '0.82rem', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", outline: 'none', transition: 'all 0.2s' }}
-                      onMouseEnter={(e) => e.target.style.borderColor = '#c9952a'}
-                      onMouseLeave={(e) => e.target.style.borderColor = 'rgba(201,149,42,0.3)'}>
-                      {['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map(s => <option key={s} style={{ background: '#0f3a2a' }}>{s}</option>)}
-                    </select>
-                  </td>
+          {orders.length === 0 ? (
+            <div style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', padding: '3rem' }}>No orders found.</div>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(201,149,42,0.2)', background: 'rgba(7, 31, 18, 0.4)' }}>
+                  {['Order ID', 'Customer', 'Total', 'Date', 'Status', 'Update Status'].map(h => (
+                    <th key={h} style={{ padding: '1rem 1.25rem', textAlign: 'left', color: '#e4b84a', fontSize: '0.72rem', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {orders.map(o => (
+                  <tr key={o.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', transition: 'background 0.2s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                    <td style={{ padding: '1rem 1.25rem', color: '#e4b84a', fontSize: '0.85rem', fontFamily: 'monospace', fontWeight: 600 }}>{o.id}</td>
+                    <td style={{ padding: '1rem 1.25rem', color: '#fdf6e3', fontSize: '0.88rem', fontWeight: 500 }}>{o.customerName || o.user?.name || 'Guest'}</td>
+                    <td style={{ padding: '1rem 1.25rem', color: '#c9952a', fontWeight: 700, fontSize: '0.9rem' }}>₹{o.total?.toLocaleString('en-IN')}</td>
+                    <td style={{ padding: '1rem 1.25rem', color: 'rgba(253, 246, 227, 0.65)', fontSize: '0.82rem' }}>{new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
+                    <td style={{ padding: '1rem 1.25rem' }}>
+                      <span style={{ background: STATUS_COLORS[o.status] || '#666', color: '#fff', fontSize: '0.7rem', padding: '4px 10px', fontWeight: 700, borderRadius: '4px', letterSpacing: '0.5px' }}>{o.status}</span>
+                    </td>
+                    <td style={{ padding: '1rem 1.25rem' }}>
+                      <select value={o.status} onChange={e => updateStatus(o.id, e.target.value)}
+                        style={{ background: '#1a5c3e', color: '#fdf6e3', border: '1px solid rgba(201,149,42,0.3)', padding: '6px 12px', borderRadius: '4px', fontSize: '0.82rem', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", outline: 'none', transition: 'all 0.2s' }}
+                        onMouseEnter={(e) => e.target.style.borderColor = '#c9952a'}
+                        onMouseLeave={(e) => e.target.style.borderColor = 'rgba(201,149,42,0.3)'}>
+                        {['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map(s => <option key={s} style={{ background: '#0f3a2a' }}>{s}</option>)}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* PAGINATION CONTROLS */}
@@ -638,10 +650,10 @@ export function AdminCoupons() {
   const load = () => {
     couponAPI.getAll()
       .then(r => setCoupons(r.data || []))
-      .catch(() => setCoupons([
-        { id: 1, code: 'SAWAI10', discountPercent: 10, expiryDate: '2030-12-31T23:59:59', usageLimit: null, usageCount: 5, active: true },
-        { id: 2, code: 'FIRST15', discountPercent: 15, expiryDate: '2030-12-31T23:59:59', usageLimit: null, usageCount: 22, active: true },
-      ]))
+      .catch((err) => {
+        setCoupons([])
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to load coupons')
+      })
   }
 
   useEffect(() => { load() }, [])
@@ -670,9 +682,8 @@ export function AdminCoupons() {
         toast.success('Coupon created!')
       }
       setShowForm(false); setEditing(null); load()
-    } catch {
-      toast.success('Saved (demo)')
-      setShowForm(false); setEditing(null)
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to save coupon')
     }
   }
 
@@ -682,8 +693,8 @@ export function AdminCoupons() {
       await couponAPI.delete(id)
       toast.success('Deleted!')
       load()
-    } catch {
-      toast.success('Deleted (demo)')
+    } catch (err) {
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to delete coupon')
     }
   }
 
@@ -746,7 +757,10 @@ export function AdminCoupons() {
         )}
 
         <div style={{ background: '#0f3a2a', border: '1px solid rgba(201,149,42,0.15)', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.15)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          {coupons.length === 0 ? (
+            <div style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', padding: '3rem' }}>No coupons found.</div>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(201,149,42,0.2)', background: 'rgba(7, 31, 18, 0.4)' }}>
                 {['Coupon Code', 'Discount %', 'Expiry Date', 'Limit', 'Usage Count', 'Status', 'Actions'].map(h => (
@@ -785,6 +799,7 @@ export function AdminCoupons() {
               ))}
             </tbody>
           </table>
+          )}
         </div>
       </div>
     </div>

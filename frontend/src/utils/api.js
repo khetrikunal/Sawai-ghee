@@ -73,6 +73,7 @@ export const orderAPI = {
   getAll: (params) => api.get('/orders/all', { params }),
   updateStatus: (id, status) => api.patch(`/orders/${id}/status`, { status }),
   requestReturn: (id, data) => api.post(`/orders/${id}/return`, data),
+  getInvoice: (id) => api.get(`/orders/${id}/invoice`, { responseType: 'blob' }),
   getInvoiceUrl: (id) => `${import.meta.env.VITE_API_BASE_URL || '/api'}/orders/${id}/invoice`,
   track: (id) => api.get(`/orders/${id}/track`),
   getAllReturns: () => api.get('/orders/returns/all'),
@@ -90,6 +91,11 @@ export const wholesaleAPI = {
   submitLead: (data) => api.post('/wholesale/leads', data),
   getAllLeads: () => api.get('/wholesale/leads'),
   updateLeadStatus: (id, status) => api.patch(`/wholesale/leads/${id}/status`, { status }),
+}
+
+// ─── Contact ──────────────────────────────────────────────────────────────────
+export const contactAPI = {
+  send: (data) => api.post('/contact', data),
 }
 
 // ─── Reviews ─────────────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import toast from 'react-hot-toast'
+import { contactAPI } from '../utils/api'
 
 const DETAILS = [
   {
@@ -63,11 +64,15 @@ export default function ContactPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setTimeout(() => {
+    try {
+      await contactAPI.send(form)
       toast.success('Message sent! We will get back to you within 24 hours.')
       setForm({ name: '', email: '', phone: '', message: '' })
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to send message. Please try again.')
+    } finally {
       setLoading(false)
-    }, 800)
+    }
   }
 
   const inputStyle = {
@@ -76,7 +81,6 @@ export default function ContactPage() {
     border: '1px solid rgba(255,255,255,0.15)',
     borderRadius: '4px',
     color: '#fdf6e3',
-    padding: '11px 14px',
     fontFamily: "'DM Sans', sans-serif",
     fontSize: '1.02rem',
     outline: 'none',

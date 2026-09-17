@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useCartStore, useAuthStore } from '../store'
@@ -119,8 +119,13 @@ export default function CheckoutPage() {
     }
   }
 
+  useEffect(() => {
+    if (items.length === 0) {
+      navigate('/cart')
+    }
+  }, [items.length, navigate])
+
   if (items.length === 0) {
-    navigate('/cart')
     return null
   }
 

@@ -130,10 +130,12 @@ public class ProductController {
             p.setImageUrl(req.getImageUrl());
             p.setActive(req.getActive());
 
-            p.getVariants().clear();
             List<ProductVariantRequest> varReqs = req.getVariants();
             if ((varReqs == null || varReqs.isEmpty()) && req.getSize() != null && !req.getSize().trim().isEmpty()) {
                 ProductVariantRequest vr = new ProductVariantRequest();
+                if (p.getVariants() != null && !p.getVariants().isEmpty()) {
+                    vr.setId(p.getVariants().get(0).getId());
+                }
                 vr.setSize(req.getSize());
                 vr.setPrice(req.getPrice());
                 vr.setOriginalPrice(req.getOriginalPrice());
@@ -143,17 +145,47 @@ public class ProductController {
                 varReqs = List.of(vr);
             }
 
-            if (varReqs != null) {
+            if (p.getVariants() == null) {
+                p.setVariants(new ArrayList<>());
+            }
+
+            if (varReqs != null && !varReqs.isEmpty()) {
+                Map<Long, ProductVariant> existingById = p.getVariants().stream()
+                        .filter(v -> v.getId() != null)
+                        .collect(Collectors.toMap(ProductVariant::getId, v -> v, (a, b) -> a));
+
                 for (ProductVariantRequest vr : varReqs) {
-                    ProductVariant v = new ProductVariant();
-                    v.setProduct(p);
-                    v.setSize(vr.getSize());
-                    v.setPrice(vr.getPrice());
-                    v.setOriginalPrice(vr.getOriginalPrice());
-                    v.setDiscount(vr.getDiscount());
-                    v.setStock(vr.getStock());
-                    v.setActive(vr.getActive() != null ? vr.getActive() : true);
-                    p.getVariants().add(v);
+                    ProductVariant targetVariant = null;
+                    if (vr.getId() != null && existingById.containsKey(vr.getId())) {
+                        targetVariant = existingById.get(vr.getId());
+                    } else if (vr.getId() == null && p.getVariants().size() == 1 && varReqs.size() == 1) {
+                        targetVariant = p.getVariants().get(0);
+                    } else if (vr.getId() == null) {
+                        targetVariant = p.getVariants().stream()
+                                .filter(v -> v.getSize() != null && v.getSize().equalsIgnoreCase(vr.getSize()))
+                                .findFirst().orElse(null);
+                    }
+
+                    if (targetVariant != null) {
+                        // Update existing variant in place (preserves FK constraints in order_items)
+                        targetVariant.setSize(vr.getSize());
+                        targetVariant.setPrice(vr.getPrice());
+                        targetVariant.setOriginalPrice(vr.getOriginalPrice());
+                        targetVariant.setDiscount(vr.getDiscount());
+                        targetVariant.setStock(vr.getStock());
+                        targetVariant.setActive(vr.getActive() != null ? vr.getActive() : true);
+                    } else {
+                        // New variant
+                        ProductVariant newVariant = new ProductVariant();
+                        newVariant.setProduct(p);
+                        newVariant.setSize(vr.getSize());
+                        newVariant.setPrice(vr.getPrice());
+                        newVariant.setOriginalPrice(vr.getOriginalPrice());
+                        newVariant.setDiscount(vr.getDiscount());
+                        newVariant.setStock(vr.getStock());
+                        newVariant.setActive(vr.getActive() != null ? vr.getActive() : true);
+                        p.getVariants().add(newVariant);
+                    }
                 }
             }
 

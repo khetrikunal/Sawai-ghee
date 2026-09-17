@@ -10,4 +10,5 @@ public class CreatePaymentOrderRequest {
     @NotNull BigDecimal amount;
     String currency = "INR";
     String receipt;
+    String backendOrderId;
 }

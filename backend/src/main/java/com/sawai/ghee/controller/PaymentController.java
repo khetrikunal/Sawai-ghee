@@ -32,6 +32,7 @@ public class PaymentController {
     private String razorpayKeySecret;
 
     @PostMapping("/create-order")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<ApiResponse<PaymentOrderResponse>> createOrder(
             @Valid @RequestBody CreatePaymentOrderRequest req) {
         try {
@@ -39,12 +40,30 @@ public class PaymentController {
             JSONObject options = new JSONObject();
             options.put("amount", req.getAmount().multiply(new BigDecimal(100)).longValue());
             options.put("currency", "INR");
-            options.put("receipt", req.getReceipt() != null ? req.getReceipt() : "sawai_" + System.currentTimeMillis());
+            String receipt = req.getReceipt() != null ? req.getReceipt() : "sawai_" + System.currentTimeMillis();
+            options.put("receipt", receipt);
 
             com.razorpay.Order rzpOrder = client.orders.create(options);
+            String rzpOrderId = rzpOrder.get("id");
+
+            // Persist mapping between Razorpay order and backend order (Critical fix: Payment binding)
+            String targetOrderId = (req.getBackendOrderId() != null && !req.getBackendOrderId().isBlank())
+                    ? req.getBackendOrderId()
+                    : req.getReceipt();
+
+            if (targetOrderId != null) {
+                orderRepository.findById(targetOrderId).ifPresent(order -> {
+                    Payment payment = paymentRepository.findByOrderId(order.getId())
+                            .orElse(Payment.builder().order(order).build());
+                    payment.setRazorpayOrderId(rzpOrderId);
+                    payment.setAmount(req.getAmount());
+                    payment.setStatus(Payment.PaymentStatus.PENDING);
+                    paymentRepository.save(payment);
+                });
+            }
 
             PaymentOrderResponse resp = new PaymentOrderResponse();
-            resp.setId(rzpOrder.get("id"));
+            resp.setId(rzpOrderId);
             resp.setAmount(req.getAmount());
             resp.setCurrency("INR");
             resp.setStatus("created");
@@ -69,27 +88,30 @@ public class PaymentController {
             String computed = sb.toString();
 
             if (!computed.equals(req.getRazorpaySignature())) {
-                return ResponseEntity.status(400).body(ApiResponse.error("Payment verification failed"));
+                return ResponseEntity.status(400).body(ApiResponse.error("Payment verification failed: Invalid signature"));
             }
 
-            // Update order status to PROCESSING after verified payment
-            if (req.getBackendOrderId() != null) {
-                orderRepository.findById(req.getBackendOrderId()).ifPresent(o -> {
-                    o.setStatus(Order.OrderStatus.PROCESSING);
-                    orderRepository.save(o);
-
-                    // Persist payment details in the database
-                    Payment payment = Payment.builder()
-                            .order(o)
-                            .razorpayOrderId(req.getRazorpayOrderId())
-                            .razorpayPaymentId(req.getRazorpayPaymentId())
-                            .razorpaySignature(req.getRazorpaySignature())
-                            .amount(o.getTotal())
-                            .status(Payment.PaymentStatus.SUCCESS)
-                            .build();
-                    paymentRepository.save(payment);
-                });
+            // Validate that the submitted razorpayOrderId corresponds to the stored backendOrderId (Critical fix: verification binding)
+            if (req.getBackendOrderId() == null || req.getBackendOrderId().isBlank()) {
+                return ResponseEntity.status(400).body(ApiResponse.error("Payment verification failed: Missing backend order ID"));
             }
+
+            Payment payment = paymentRepository.findByRazorpayOrderId(req.getRazorpayOrderId())
+                    .orElse(null);
+
+            if (payment == null || payment.getOrder() == null || !req.getBackendOrderId().equals(payment.getOrder().getId())) {
+                return ResponseEntity.status(400).body(ApiResponse.error("Payment verification failed: Razorpay order does not match registered backend order"));
+            }
+
+            // Update order status to PROCESSING and payment to SUCCESS after verified binding
+            Order order = payment.getOrder();
+            order.setStatus(Order.OrderStatus.PROCESSING);
+            orderRepository.save(order);
+
+            payment.setRazorpayPaymentId(req.getRazorpayPaymentId());
+            payment.setRazorpaySignature(req.getRazorpaySignature());
+            payment.setStatus(Payment.PaymentStatus.SUCCESS);
+            paymentRepository.save(payment);
 
             return ResponseEntity.ok(ApiResponse.ok("Payment verified successfully"));
         } catch (Exception e) {
@@ -119,24 +141,37 @@ public class PaymentController {
                 return ResponseEntity.status(400).body("Invalid signature");
             }
 
-            // Parse webhook event and update order status
+            // Parse webhook event and update matching order status by Razorpay Order ID (Critical fix)
             JSONObject event = new JSONObject(payload);
             String eventType = event.optString("event", "");
 
-            if ("payment.captured".equals(eventType)) {
-                JSONObject paymentEntity = event.getJSONObject("payload")
-                        .getJSONObject("payment").getJSONObject("entity");
-                String rzpOrderId = paymentEntity.optString("order_id");
+            if ("payment.captured".equals(eventType) || "order.paid".equals(eventType)) {
+                JSONObject paymentEntity = (event.optJSONObject("payload") != null && event.getJSONObject("payload").optJSONObject("payment") != null)
+                        ? event.getJSONObject("payload").getJSONObject("payment").optJSONObject("entity")
+                        : null;
+                String rzpOrderId = paymentEntity != null ? paymentEntity.optString("order_id") : null;
+                if (rzpOrderId == null || rzpOrderId.isBlank()) {
+                    JSONObject orderEntity = (event.optJSONObject("payload") != null && event.getJSONObject("payload").optJSONObject("order") != null)
+                            ? event.getJSONObject("payload").getJSONObject("order").optJSONObject("entity")
+                            : null;
+                    if (orderEntity != null) {
+                        rzpOrderId = orderEntity.optString("id");
+                    }
+                }
 
                 if (rzpOrderId != null && !rzpOrderId.isBlank()) {
-                    // Find order by Razorpay order ID and mark as PROCESSING
-                    orderRepository.findAll().stream()
-                            .filter(o -> Order.OrderStatus.PENDING.equals(o.getStatus()))
-                            .findFirst()
-                            .ifPresent(o -> {
-                                o.setStatus(Order.OrderStatus.PROCESSING);
-                                orderRepository.save(o);
-                            });
+                    paymentRepository.findByRazorpayOrderId(rzpOrderId).ifPresent(payment -> {
+                        Order o = payment.getOrder();
+                        if (o != null && o.getStatus() == Order.OrderStatus.PENDING) {
+                            o.setStatus(Order.OrderStatus.PROCESSING);
+                            orderRepository.save(o);
+                        }
+                        payment.setStatus(Payment.PaymentStatus.SUCCESS);
+                        if (paymentEntity != null && paymentEntity.optString("id") != null && !paymentEntity.optString("id").isBlank()) {
+                            payment.setRazorpayPaymentId(paymentEntity.optString("id"));
+                        }
+                        paymentRepository.save(payment);
+                    });
                 }
             }
 

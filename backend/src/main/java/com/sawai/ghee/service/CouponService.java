@@ -37,11 +37,14 @@ public class CouponService {
     }
 
     @Transactional
+    public boolean incrementUsageIfEligible(String couponCode) {
+        if (couponCode == null || couponCode.isBlank()) return false;
+        int updated = couponRepository.incrementUsageIfEligible(couponCode.trim(), LocalDateTime.now());
+        return updated > 0;
+    }
+
+    @Transactional
     public void incrementUsage(String couponCode) {
-        if (couponCode == null || couponCode.isBlank()) return;
-        couponRepository.findByCodeIgnoreCase(couponCode.trim()).ifPresent(c -> {
-            c.setUsageCount(c.getUsageCount() + 1);
-            couponRepository.save(c);
-        });
+        incrementUsageIfEligible(couponCode);
     }
 }

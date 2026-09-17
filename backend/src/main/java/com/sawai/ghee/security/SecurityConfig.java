@@ -56,9 +56,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/coupons/validate").permitAll()
                 .requestMatchers("/api/coupons/**").hasRole("ADMIN")
 
-                // 6. Wholesale Leads: Public inquiry submission
+                // 6. Wholesale Leads & Contact Form: Public submissions
                 .requestMatchers(HttpMethod.POST, "/api/wholesale/leads").permitAll()
                 .requestMatchers("/api/wholesale/leads/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
 
                 // 7. Payments & Webhooks
                 .requestMatchers(HttpMethod.POST, "/api/payments/webhook").permitAll()
@@ -67,10 +68,10 @@ public class SecurityConfig {
                 // 8. Orders: Admin-specific endpoints
                 .requestMatchers("/api/orders/all").hasRole("ADMIN")
                 .requestMatchers("/api/orders/returns/all").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/orders/track/**").permitAll()
 
-                // 9. Actuator / Static assets
-                .requestMatchers("/actuator/**").permitAll()
+                // 9. Actuator lockdown (Major fix) & Static assets
+                .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                .requestMatchers("/actuator/**").hasRole("ADMIN")
                 .requestMatchers("/static/**", "/uploads/**").permitAll()
 
                 // 10. All other requests require authentication

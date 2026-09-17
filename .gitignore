@@ -1,0 +1,40 @@
+# NOTE: The existing .env and default admin password must be rotated/changed outside of this code change (handled separately).
+# Environment files
+.env
+.env.*
+.env.local
+.env.*.local
+*.env
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+
+# Node & Frontend
+node_modules/
+dist/
+build/
+.npm
+.eslintcache
+
+# Maven & Java
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.mvn/
+uploads/
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
